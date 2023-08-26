@@ -1,10 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import logo from '../images/Linkedin-logo-png.png'
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase/firebaseConfig'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Navbar = ({ active }) => {
+    let signUpCollapsed = useSelector((state) => {
+        return state.signUpCollapsed;
+    })
+    let dispatch = useDispatch();
     if (active === 'signInNavbar') {
         return (
             <div className="navbar navbar-expand-sm navbar-light d-flex justify-content-between px-4">
@@ -17,7 +22,12 @@ const Navbar = ({ active }) => {
                 <div>
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item">
-                            <NavLink to='/sign-up' className="nav-link px-4" style={{background: "", borderRadius: "20px", border: "1px solid #0072b1", color: "#0072b1"}}>Sign up</NavLink>
+                            <button onClick={() => {
+                                dispatch({
+                                    type: "SET_SIGNUP",
+                                    payload: !signUpCollapsed
+                                })
+                            }} className="nav-link px-4" style={{ borderRadius: "20px", border: "1px solid #0072b1", color: "#0072b1"}}>Sign up</button>
                         </li>
                     </ul>
                 </div>
