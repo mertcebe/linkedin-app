@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
+import { setUserToFirebase } from './SignInPage';
 
 const SignUpPage = () => {
     let signUpCollapsed = useSelector((state) => {
@@ -20,6 +21,7 @@ const SignUpPage = () => {
                     updateProfile(userCredentials.user, {
                         displayName: name
                     })
+                    setUserToFirebase(userCredentials.user);
                 })
                 .then(() => {
                     toast.success(`Signed up, welcome ${name}`)

@@ -1,14 +1,41 @@
-import React, { useState } from 'react'
-import { auth } from '../firebase/firebaseConfig'
+import React, { useEffect, useState } from 'react'
+import database, { auth } from '../firebase/firebaseConfig'
 import profileImg3 from '../images/profileImg3.jpg';
 import { useDispatch, useSelector } from 'react-redux';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { Divider, IconButton } from '@mui/material';
+import { Divider, Icon, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import ImageIcon from '@mui/icons-material/Image';
+import CloseIcon from '@mui/icons-material/Close';
+import Post from './Post';
+import { addDoc, collection, doc, getDocs, orderBy, query, setDoc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
+import Loading from './Loading';
 
 const Posts = () => {
     let [text, setText] = useState();
+    let [selectedImg, setSelectedImg] = useState();
+    let [posts, setPosts] = useState();
+    let [loading, setLoading] = useState(false);
+
+    const getPosts = async () => {
+        await getDocs(query(collection(database, `allPosts`), orderBy('dateAdded', 'desc')))
+            .then((snapshot) => {
+                let allPosts = [];
+                snapshot.forEach((post) => {
+                    allPosts.push({
+                        ...post.data(),
+                        id: post.id
+                    });
+                });
+                setPosts(allPosts);
+            })
+    }
+
+    useEffect(() => {
+        getPosts();
+    }, []);
+
     let startPost = useSelector((state) => {
         return state.startPost;
     })
@@ -18,17 +45,45 @@ const Posts = () => {
             type: "SET_START_POST",
             payload: !startPost
         });
+        setSelectedImg(null);
     }
     const postAPost = () => {
+        setLoading(true);
+        let post = {
+            text: text,
+            likes: 0,
+            comments: 0,
+            img: selectedImg ? selectedImg : null,
+            dateAdded: new Date().getTime()
+        };
+        startPostFunc();
+        addDoc(collection(database, `users/${auth.currentUser.uid}/posts`), post)
+            .then((snapshot) => {
+                setDoc(doc(database, `allPosts/${snapshot.id}`), post);
+            })
+            .then(() => {
+                getPosts()
+                    .then(() => {
+                        setLoading(false);
+                        toast.dark('Successfully created a post!');
+                    })
+            })
+        setSelectedImg(null);
+        document.getElementById("fileInput1").value = '';
+    }
 
+    if (!posts) {
+        return (
+            <h5>loading...</h5>
+        )
     }
     return (
         <div style={{ boxSizing: "border-box" }}>
-            {/* post box */}
+            {/* create a post */}
             {
                 startPost ?
                     <div style={{ position: "absolute", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)" }}>
-                        <div style={{ position: "absolute", top: "40%", left: "50%", background: "#fff", transform: "translate(-50%, -50%)", width: "500px", padding: "10px" }}>
+                        <div style={{ position: "absolute", top: "50%", left: "50%", background: "#fff", transform: "translate(-50%, -50%)", width: "500px", padding: "10px" }}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <b>Create a post</b>
                                 <IconButton onClick={startPostFunc}>
@@ -41,18 +96,42 @@ const Posts = () => {
                                 <small><b>{auth.currentUser.displayName}</b></small>
                                 <textarea onChange={(e) => {
                                     setText(e.target.value);
-                                }} style={{ width: "100%", minHeight: "140px", border: "none", outline: "none", maxHeight: "200px", margin: "10px 0" }} placeholder='What do you want to talk about?'></textarea>
+                                }} style={{ width: "100%", minHeight: "120px", border: "none", outline: "none", maxHeight: "200px", margin: "10px 0" }} placeholder='What do you want to talk about?'></textarea>
+                            </div>
+                            <div>
+                                {
+                                    selectedImg !== null ?
+                                        <>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                                <p><i style={{ color: "grey" }}>{selectedImg.name}</i></p>
+                                                <IconButton onClick={() => {
+                                                    setSelectedImg(null);
+                                                    document.getElementById("fileInput1").value = '';
+                                                }}>
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </div>
+                                            <img src={selectedImg.src} alt="" style={{ width: "100%", borderRadius: "10px", marginBottom: "10px" }} />
+                                        </>
+                                        :
+                                        <></>
+                                }
                             </div>
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <input type="file" style={{display: "none"}} id='fileInput1' onChange={(e) => {
-                                        console.log(e.target.files[0]);
+                                    <input type="file" style={{ display: "none" }} id='fileInput1' onChange={(e) => {
+                                        let src = URL.createObjectURL(e.target.files[0]);
+                                        setSelectedImg({
+                                            src: src,
+                                            name: e.target.files[0].name
+                                        });
+                                        console.log(src, e.target.files[0].name)
                                     }} />
-                                    <label htmlFor="fileInput1" style={{cursor: "pointer", color: "#0072b1"}}><ImageIcon /></label>
+                                    <label htmlFor="fileInput1" style={{ cursor: "pointer", color: "grey" }}><ImageIcon /></label>
                                     <button>youtube</button>
                                     <button>text</button>
                                 </div>
-                                <IconButton onClick={postAPost} disabled={text ? false : true} style={{ color: text ? '#0072b1' : 'grey' }}>
+                                <IconButton onClick={postAPost} disabled={text || selectedImg ? false : true} style={{ color: text || selectedImg ? '#0072b1' : 'grey' }}>
                                     <SendIcon />
                                 </IconButton>
                             </div>
@@ -74,6 +153,28 @@ const Posts = () => {
                     <button style={{ background: "transparent", border: "none", width: "20%" }}>Event</button>
                     <button style={{ background: "transparent", border: "none", width: "20%" }}>Write article</button>
                 </div>
+            </div>
+
+            {/* posts */}
+            <div>
+                {
+                    loading ?
+                        <Loading />
+                        :
+                        <></>
+                }
+                {
+                    posts ?
+                        <>
+                            {
+                                posts.map((post) => {
+                                    return <Post post={post} />
+                                })
+                            }
+                        </>
+                        :
+                        <></>
+                }
             </div>
         </div>
     )

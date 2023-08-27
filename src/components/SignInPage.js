@@ -1,11 +1,22 @@
 import React, { useState } from 'react'
 import backImg from '../images/linkedin-back.svg';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
+import database, { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
 import SignUpPage from './SignUpPage';
 import { useSelector } from 'react-redux';
+import { doc, setDoc } from 'firebase/firestore';
+
+
+export const setUserToFirebase = async (user) => {
+    console.log(user);
+    await setDoc(doc(database, `users/${user.uid}`), {
+        name: user.displayName,
+        uid: user.uid,
+        email: user.email
+    })
+}
 
 const SignInPage = () => {
     let [email, setEmail] = useState();
@@ -28,6 +39,7 @@ const SignInPage = () => {
         if (email && password) {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredentials) => {
+                    setUserToFirebase(userCredentials.user)
                     toast.success(`${userCredentials.user.displayName}, welcome!`);
                 })
                 .catch((error) => {
@@ -54,15 +66,15 @@ const SignInPage = () => {
                 <div style={{ width: "50%", boxSizing: "border-box", padding: "100px" }}>
                     <p className='' style={{ width: "500px", fontSize: "50px", fontFamily: "serif", color: "#0072b1", marginBottom: "40px" }}>Welcome to your professional community</p>
                     <form onSubmit={submitFunc}>
-                        <div class="form-group mb-2">
+                        <div className="form-group mb-2">
                             <label for="exampleInputEmail1" style={{ fontSize: "12px" }}>Email address</label>
-                            <input type="email" class="form-control" onChange={(e) => {
+                            <input type="email" className="form-control" onChange={(e) => {
                                 setEmail(e.target.value);
-                            }} id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" />
+                            }} id="exampleInputEmail1" placeholder="Enter email" />
                         </div>
-                        <div class="form-group mb-4">
+                        <div className="form-group mb-4">
                             <label for="exampleInputPassword1" style={{ fontSize: "12px" }}>Password</label>
-                            <input type="password" class="form-control" onChange={(e) => {
+                            <input type="password" className="form-control" onChange={(e) => {
                                 setPassword(e.target.value);
                             }} id="exampleInputPassword1" placeholder="Password" />
                         </div>
