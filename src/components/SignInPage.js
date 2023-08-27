@@ -30,6 +30,10 @@ const SignInPage = () => {
                 .then((userCredentials) => {
                     toast.success(`${userCredentials.user.displayName}, welcome!`);
                 })
+                .catch((error) => {
+                    let msg =  error.code.split('/')[1].split('-').join(' ');
+                    toast.error(msg);
+                })
         }
         else if (!email) {
             toast.dark('Enter an email!');

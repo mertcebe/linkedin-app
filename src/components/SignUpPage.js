@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
-import { FirebaseError } from 'firebase/app';
 
 const SignUpPage = () => {
     let signUpCollapsed = useSelector((state) => {

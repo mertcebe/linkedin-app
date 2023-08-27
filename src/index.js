@@ -6,7 +6,8 @@ import { createStore } from 'redux'
 import { Provider } from 'react-redux';
 
 let initialState = {
-  signUpCollapsed: true
+  signUpCollapsed: true,
+  startPost: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -15,6 +16,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         signUpCollapsed: action.payload
+      };
+    case "SET_START_POST":
+      return {
+        ...state,
+        startPost: action.payload
       };
     default:
       return state;
