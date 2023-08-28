@@ -11,12 +11,14 @@ import Post from './Post';
 import { addDoc, collection, doc, getDocs, orderBy, query, setDoc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import Loading from './Loading';
+import { UploadImgToStorage } from './uploadImgToStorage/UploadImgToStorage';
 
 const Posts = () => {
     let [text, setText] = useState();
     let [selectedImg, setSelectedImg] = useState();
     let [posts, setPosts] = useState();
     let [loading, setLoading] = useState(false);
+    let [file, setFile] = useState();
 
     const getPosts = async () => {
         await getDocs(query(collection(database, `allPosts`), orderBy('dateAdded', 'desc')))
@@ -47,29 +49,39 @@ const Posts = () => {
         });
         setSelectedImg(null);
     }
-    const postAPost = () => {
+    const postAPost = async () => {
         setLoading(true);
-        let post = {
-            text: text,
-            likes: 0,
-            comments: 0,
-            img: selectedImg ? selectedImg : null,
-            dateAdded: new Date().getTime()
-        };
         startPostFunc();
-        addDoc(collection(database, `users/${auth.currentUser.uid}/posts`), post)
-            .then((snapshot) => {
-                setDoc(doc(database, `allPosts/${snapshot.id}`), post);
-            })
-            .then(() => {
-                getPosts()
+        await UploadImgToStorage(file, auth.currentUser.uid)
+            .then(async (snapshot) => {
+                let post = {
+                    text: text,
+                    likes: 0,
+                    comments: 0,
+                    img: await snapshot,
+                    dateAdded: new Date().getTime()
+                };
+                addDoc(collection(database, `users/${auth.currentUser.uid}/posts`), post)
+                    .then((snapshot) => {
+                        setDoc(doc(database, `allPosts/${snapshot.id}`), {
+                            ...post,
+                            owner: {
+                                name: auth.currentUser.displayName,
+                                email: auth.currentUser.email,
+                                photoURL: auth.currentUser.photoURL,
+                                uid: auth.currentUser.uid
+                            }
+                        });
+                    })
                     .then(() => {
-                        setLoading(false);
-                        toast.dark('Successfully created a post!');
+                        getPosts()
+                            .then(() => {
+                                setLoading(false);
+                                toast.dark('Successfully created a post!');
+                            })
                     })
             })
         setSelectedImg(null);
-        document.getElementById("fileInput1").value = '';
     }
 
     if (!posts) {
@@ -82,7 +94,7 @@ const Posts = () => {
             {/* create a post */}
             {
                 startPost ?
-                    <div style={{ position: "absolute", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)" }}>
+                    <div style={{ position: "absolute", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
                         <div style={{ position: "absolute", top: "50%", left: "50%", background: "#fff", transform: "translate(-50%, -50%)", width: "500px", padding: "10px" }}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <b>Create a post</b>
@@ -92,7 +104,7 @@ const Posts = () => {
                             </div>
                             <Divider />
                             <div className='p-2'>
-                                <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "30px", borderRadius: "50%", marginRight: "10px" }} />
+                                <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "10px" }} />
                                 <small><b>{auth.currentUser.displayName}</b></small>
                                 <textarea onChange={(e) => {
                                     setText(e.target.value);
@@ -125,6 +137,11 @@ const Posts = () => {
                                             src: src,
                                             name: e.target.files[0].name
                                         });
+                                        setFile({
+                                            name: e.target.files[0].name,
+                                            type: e.target.files[0].type,
+                                            self: e.target.files[0]
+                                        })
                                         console.log(src, e.target.files[0].name)
                                     }} />
                                     <label htmlFor="fileInput1" style={{ cursor: "pointer", color: "grey" }}><ImageIcon /></label>
@@ -144,7 +161,7 @@ const Posts = () => {
             {/* start a post */}
             <div style={{ borderRadius: "20px", backgroundColor: "#fff" }}>
                 <div className='d-flex align-items-center' style={{ padding: "10px" }}>
-                    <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "40px", borderRadius: "50%" }} />
+                    <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
                     <button onClick={startPostFunc} style={{ width: "100%", borderRadius: "40px", background: "transparent", border: "1px solid #dfdfdf", color: "grey", textAlign: "left", padding: "10px 16px" }}><b>Start a post</b></button>
                 </div>
                 <div className='d-flex justify-content-center align-items-center'>

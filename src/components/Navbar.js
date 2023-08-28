@@ -49,6 +49,11 @@ const Navbar = ({ active }) => {
         )
     }
     else if (active === 'appNavbar') {
+        if(!auth.currentUser.displayName){
+            return (
+                <h5>loading...</h5>
+            )
+        }
         return (
             <div className="navbar navbar-expand-sm navbar-light bg-light d-flex justify-content-between px-4">
                 <div className='d-flex align-items-center'>
@@ -87,7 +92,7 @@ const Navbar = ({ active }) => {
                                         aria-haspopup="true"
                                         aria-expanded={open ? 'true' : undefined}
                                     >
-                                        <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                                        <Avatar sx={{ width: 32, height: 32 }}>{auth.currentUser.displayName[0].toUpperCase()}</Avatar>
                                     </IconButton>
                                 </Tooltip>
                             </Box>

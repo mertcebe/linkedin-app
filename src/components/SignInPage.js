@@ -1,26 +1,29 @@
 import React, { useState } from 'react'
 import backImg from '../images/linkedin-back.svg';
-import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect, updateProfile } from 'firebase/auth';
 import database, { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
 import SignUpPage from './SignUpPage';
 import { useSelector } from 'react-redux';
 import { doc, setDoc } from 'firebase/firestore';
+import ImageIcon from '@mui/icons-material/Image';
+import { UploadImgToStorage } from './uploadImgToStorage/UploadImgToStorage';
 
 
-export const setUserToFirebase = async (user) => {
-    console.log(user);
+export const setUserToFirebase = async (user, photoURL = null) => {
     await setDoc(doc(database, `users/${user.uid}`), {
         name: user.displayName,
         uid: user.uid,
-        email: user.email
+        email: user.email,
+        photoURL: photoURL
     })
 }
 
 const SignInPage = () => {
     let [email, setEmail] = useState();
     let [password, setPassword] = useState();
+    let [file, setFile] = useState();
 
     let signUpCollapsed = useSelector((state) => {
         return state.signUpCollapsed;
@@ -38,12 +41,19 @@ const SignInPage = () => {
         e.preventDefault();
         if (email && password) {
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredentials) => {
-                    setUserToFirebase(userCredentials.user)
+                .then(async (userCredentials) => {
+                    await UploadImgToStorage(file, auth.currentUser.uid)
+                        .then((snapshot) => {
+                            console.log(snapshot);
+                            updateProfile(userCredentials.user, {
+                                photoURL: snapshot.src
+                            });
+                            setUserToFirebase(userCredentials.user, snapshot.src);
+                        })
                     toast.success(`${userCredentials.user.displayName}, welcome!`);
                 })
                 .catch((error) => {
-                    let msg =  error.code.split('/')[1].split('-').join(' ');
+                    let msg = error.code.split('/')[1].split('-').join(' ');
                     toast.error(msg);
                 })
         }
@@ -57,10 +67,10 @@ const SignInPage = () => {
     return (
         <>
             {
-                signUpCollapsed?
-                <></>
-                :
-                <SignUpPage />
+                signUpCollapsed ?
+                    <></>
+                    :
+                    <SignUpPage />
             }
             <div className='d-flex justify-content-between' style={{ width: "100%", height: "92vh" }}>
                 <div style={{ width: "50%", boxSizing: "border-box", padding: "100px" }}>
@@ -77,6 +87,16 @@ const SignInPage = () => {
                             <input type="password" className="form-control" onChange={(e) => {
                                 setPassword(e.target.value);
                             }} id="exampleInputPassword1" placeholder="Password" />
+                        </div>
+                        <div style={{ margin: "10px 0" }}>
+                            <input type="file" id='profileImgInput' onChange={(e) => {
+                                setFile({
+                                    name: e.target.files[0].name,
+                                    type: e.target.files[0].type,
+                                    self: e.target.files[0]
+                                });
+                            }} style={{ display: "none" }} />
+                            <label htmlFor="profileImgInput" style={{ cursor: "pointer", color: "#0072b1" }}><ImageIcon /> <small>Add an avatar</small></label>
                         </div>
                         <button type='submit' style={{ width: "100%", padding: "10px 0", background: "#fff", borderRadius: "30px", border: "1px solid #0072b1", color: "#0072b1" }}>Sign in</button>
                         <div style={{ position: "relative", margin: "30px 0", padding: "0 20px" }}>
