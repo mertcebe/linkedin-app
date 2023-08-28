@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import logo from '../images/Linkedin-logo-png.png'
 import { signOut } from 'firebase/auth'
@@ -49,18 +49,18 @@ const Navbar = ({ active }) => {
         )
     }
     else if (active === 'appNavbar') {
-        if(!auth.currentUser.displayName){
-            return (
-                <h5>loading...</h5>
-            )
-        }
+        // if (!) {
+        //     return (
+        //         <h5>loading...</h5>
+        //     )
+        // }
         return (
             <div className="navbar navbar-expand-sm navbar-light bg-light d-flex justify-content-between px-4">
                 <div className='d-flex align-items-center'>
-                    <Link className="navbar-brand" to='/home'><img src={linkedinLogo} alt="" style={{width: "36px", pointerEvents: "none"}} /></Link>
-                    <form className="form-inline my-2 my-lg-0" style={{position: "relative"}}>
-                        <label htmlFor='searchInput1' style={{position: "absolute", top: "6px", left: "10px"}}><i className="fa-solid fa-magnifying-glass"></i></label>
-                        <input className="form-control mr-sm-2" id='searchInput1' style={{paddingLeft: "30px"}} type="search" placeholder="Search" />
+                    <Link className="navbar-brand" to='/home'><img src={linkedinLogo} alt="" style={{ width: "36px", pointerEvents: "none" }} /></Link>
+                    <form className="form-inline my-2 my-lg-0" style={{ position: "relative" }}>
+                        <label htmlFor='searchInput1' style={{ position: "absolute", top: "6px", left: "10px" }}><i className="fa-solid fa-magnifying-glass"></i></label>
+                        <input className="form-control mr-sm-2" id='searchInput1' style={{ paddingLeft: "30px" }} type="search" placeholder="Search" />
                     </form>
                 </div>
 
@@ -135,7 +135,7 @@ const Navbar = ({ active }) => {
                                     <Avatar /> Profile
                                 </MenuItem>
                                 <MenuItem onClick={signOutFunc}>
-                                    <i className="fa-solid fa-right-from-bracket" style={{marginRight: "8px", color: "grey", fontSize: "18px"}}></i>Sign Out
+                                    <i className="fa-solid fa-right-from-bracket" style={{ marginRight: "8px", color: "grey", fontSize: "18px" }}></i>Sign Out
                                 </MenuItem>
                             </Menu>
                         </li>

@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
 import { setUserToFirebase } from './SignInPage';
+import ImageIcon from '@mui/icons-material/Image';
+import { UploadImgToStorage } from './uploadImgToStorage/UploadImgToStorage';
 
 const SignUpPage = () => {
     let signUpCollapsed = useSelector((state) => {
@@ -13,15 +15,21 @@ const SignUpPage = () => {
     let [name, setName] = useState();
     let [email, setEmail] = useState();
     let [password, setPassword] = useState();
+    let [file, setFile] = useState();
+
     const signUpFunc = (e) => {
         e.preventDefault();
         if (name && email && password) {
             createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredentials) => {
-                    updateProfile(userCredentials.user, {
-                        displayName: name
-                    })
-                    setUserToFirebase(userCredentials.user);
+                .then(async (userCredentials) => {
+                    await UploadImgToStorage(file, auth.currentUser.uid)
+                        .then((snapshot) => {
+                            updateProfile(userCredentials.user, {
+                                displayName: name,
+                                photoURL: snapshot.src
+                            })
+                            setUserToFirebase(userCredentials.user);
+                        })
                 })
                 .then(() => {
                     toast.success(`Signed up, welcome ${name}`)
@@ -86,6 +94,16 @@ const SignUpPage = () => {
                         <input type="password" class="form-control" onChange={(e) => {
                             setPassword(e.target.value);
                         }} id="exampleInputPassword1" placeholder="Password" />
+                    </div>
+                    <div style={{ margin: "10px 0" }}>
+                        <input type="file" id='profileImgInput' onChange={(e) => {
+                            setFile({
+                                name: e.target.files[0].name,
+                                type: e.target.files[0].type,
+                                self: e.target.files[0]
+                            });
+                        }} style={{ display: "none" }} />
+                        <label htmlFor="profileImgInput" style={{ cursor: "pointer", color: "#0072b1" }}><ImageIcon /> <small>Add an avatar</small></label>
                     </div>
                     <button type='submit' style={{ width: "100%", padding: "10px 0", background: "#fff", borderRadius: "30px", border: "1px solid #0072b1", color: "#0072b1" }}>Sign up</button>
                 </form>

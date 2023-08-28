@@ -94,7 +94,7 @@ const Posts = () => {
             {/* create a post */}
             {
                 startPost ?
-                    <div style={{ position: "absolute", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
+                    <div style={{ position: "fixed", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
                         <div style={{ position: "absolute", top: "50%", left: "50%", background: "#fff", transform: "translate(-50%, -50%)", width: "500px", padding: "10px" }}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <b>Create a post</b>
@@ -159,9 +159,9 @@ const Posts = () => {
             }
 
             {/* start a post */}
-            <div style={{ borderRadius: "20px", backgroundColor: "#fff" }}>
+            <div className='shadow-sm' style={{ borderRadius: "20px", backgroundColor: "#fff", margin: "10px 0" }}>
                 <div className='d-flex align-items-center' style={{ padding: "10px" }}>
-                    <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
+                    <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "10px" }} />
                     <button onClick={startPostFunc} style={{ width: "100%", borderRadius: "40px", background: "transparent", border: "1px solid #dfdfdf", color: "grey", textAlign: "left", padding: "10px 16px" }}><b>Start a post</b></button>
                 </div>
                 <div className='d-flex justify-content-center align-items-center'>
@@ -185,7 +185,7 @@ const Posts = () => {
                         <>
                             {
                                 posts.map((post) => {
-                                    return <Post post={post} />
+                                    return <Post post={post} key={post.id} />
                                 })
                             }
                         </>
