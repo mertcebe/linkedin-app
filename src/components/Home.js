@@ -5,10 +5,10 @@ import database from '../firebase/firebaseConfig'
 
 const Home = () => {
   return (
-    <div className='container' style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-      <div style={{ width: "20%", background: "lightblue" }}>My Account</div>
-      <div style={{ width: "50%" }}><Posts /></div>
-      <div style={{ width: "20%", background: "lightblue" }}>Recommend</div>
+    <div className='container home'>
+      <div className='myAccountSec'>My Account</div>
+      <div className='postsSec'><Posts /></div>
+      <div className='reccomendSec'>Recommend</div>
     </div>
   )
 }

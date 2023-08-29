@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import defaultProfileImg from '../images/profileImg2.jpg';
-import { IconButton } from '@mui/material';
+import { Icon, IconButton } from '@mui/material';
 import CommentIcon from '@mui/icons-material/Comment';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import database, { auth } from '../firebase/firebaseConfig'
+import Comments from './comments/Comments';
+import { useDispatch, useSelector } from 'react-redux';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import SendIcon from '@mui/icons-material/Send';
 
 const Post = ({ post }) => {
-  const { text, comments, likes, owner, img, dateAdded, id } = post;
+  const { text, comments : commentsNum, likes, owner, img, dateAdded, id } = post;
   let [checked, setChecked] = useState(false);
   let [likesNum, setLikesNum] = useState(likes);
   let [disabled, setDisabled] = useState(false);
+  let [openComment, setOpenComment] = useState(false);
+  let [commentText, setCommentText] = useState();
+
+  let commentsSec = useSelector((state) => {
+    return state.commentsSec;
+  });
+  let dispatch = useDispatch();
 
   // look at this one more time***************
 
@@ -52,17 +63,28 @@ const Post = ({ post }) => {
     }, 1000);
   }
 
+  const openCommentsFunc = () => {
+    dispatch({
+      type: "SET_COMMENTS",
+      payload: !commentsSec
+    });
+  }
+
+  const openCommentInput = () => {
+    setOpenComment(!openComment);
+  }
+
   useEffect(() => {
     const controlMyLikes = async () => {
       getDoc(doc(database, `users/${auth.currentUser.uid}/myLikes/${id}`))
-      .then((snapshot) => {
-        if(snapshot.exists()){
-          setChecked(true);
-        }
-        else{
-          setChecked(false);
-        }
-      })
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            setChecked(true);
+          }
+          else {
+            setChecked(false);
+          }
+        })
     }
     controlMyLikes();
   }, []);
@@ -96,11 +118,16 @@ const Post = ({ post }) => {
           <i className="fa-brands fa-gratipay" style={{ color: "#0072b1", marginRight: "4px" }}></i>
           <span><b>{likesNum}</b></span>
         </li>
-        <li>
+        <li style={{ marginRight: "10px" }}>
           <b style={{ color: "#0072b1" }}>
-            <span style={{ marginRight: "4px" }}>{comments}</span>
+            <span style={{ marginRight: "4px" }}>{commentsNum}</span>
             <span>comments</span>
           </b>
+        </li>
+        <li>
+          <IconButton onClick={openCommentsFunc}>
+            <QuestionAnswerIcon style={{ fontSize: "16px", color: "#0072b1" }} />
+          </IconButton>
         </li>
       </ul>
       <hr style={{ margin: "5px 0", padding: "0" }} />
@@ -109,10 +136,29 @@ const Post = ({ post }) => {
           likeFunc(e.target.checked)
         }} />
         <label htmlFor={id} style={{ margin: "5px 0px 10px 10px", cursor: "pointer", color: checked ? '#0072b1' : 'grey' }}><i className="fa-solid fa-thumbs-up"></i></label>
-        <IconButton>
+        <IconButton onClick={openCommentInput}>
           <CommentIcon style={{ fontSize: "18px", color: "#0072b1" }} />
         </IconButton>
+        {
+          openComment ?
+            <div style={{ width: "100%" }}>
+              <input type="text" style={{ width: "94%" }} onChange={(e) => {
+                setCommentText(e.target.value);
+              }}/>
+              <IconButton style={{ width: "6%" }} disabled={commentText?false:true}>
+                <SendIcon />
+              </IconButton>
+            </div>
+            :
+            <></>
+        }
       </div>
+      {
+        commentsSec ?
+          <Comments />
+          :
+          <></>
+      }
     </div>
   )
 }

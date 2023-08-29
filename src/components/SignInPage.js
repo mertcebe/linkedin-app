@@ -61,8 +61,8 @@ const SignInPage = () => {
                     :
                     <SignUpPage />
             }
-            <div className='d-flex justify-content-between' style={{ width: "100%", height: "92vh" }}>
-                <div style={{ width: "50%", boxSizing: "border-box", padding: "100px" }}>
+            <div className='signInPage'>
+                <div className='signInPart'>
                     <p className='' style={{ width: "500px", fontSize: "50px", fontFamily: "serif", color: "#0072b1", marginBottom: "40px" }}>Welcome to your professional community</p>
                     <form onSubmit={submitFunc}>
                         <div className="form-group mb-2">
