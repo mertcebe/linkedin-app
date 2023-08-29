@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import defaultProfileImg from '../images/profileImg2.jpg';
-import { Icon, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import CommentIcon from '@mui/icons-material/Comment';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc } from 'firebase/firestore';
 import database, { auth } from '../firebase/firebaseConfig'
 import Comments from './comments/Comments';
 import { useDispatch, useSelector } from 'react-redux';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import SendIcon from '@mui/icons-material/Send';
+import Moment from 'react-moment'
+import { toast } from 'react-toastify';
 
 const Post = ({ post }) => {
-  const { text, comments : commentsNum, likes, owner, img, dateAdded, id } = post;
+  const { text, comments: commentsNum, likes, owner, img, dateAdded, id } = post;
   let [checked, setChecked] = useState(false);
   let [likesNum, setLikesNum] = useState(likes);
   let [disabled, setDisabled] = useState(false);
   let [openComment, setOpenComment] = useState(false);
   let [commentText, setCommentText] = useState();
+  let [commentsNumber, setCommentsNumber] = useState(commentsNum);
 
   let commentsSec = useSelector((state) => {
     return state.commentsSec;
@@ -66,12 +69,34 @@ const Post = ({ post }) => {
   const openCommentsFunc = () => {
     dispatch({
       type: "SET_COMMENTS",
+      postIdForComment: id,
       payload: !commentsSec
     });
   }
 
   const openCommentInput = () => {
     setOpenComment(!openComment);
+  }
+
+  const sendCommentFunc = () => {
+    const comment = {
+      text: commentText,
+      dateAdded: new Date().getTime(),
+      sender: {
+        name: auth.currentUser.displayName,
+        email: auth.currentUser.email,
+        uid: auth.currentUser.uid,
+        photoURL: auth.currentUser.photoURL
+      }
+    };
+    addDoc(collection(database, `allPosts/${id}/allComments`), comment)
+      .then((snapshot) => {
+        setDoc(doc(database, `users/${owner.uid}/posts/${id}/allComments/${snapshot.id}`), comment)
+          .then(() => {
+            toast.info('Successfully sended!');
+          })
+      })
+    setCommentText('');
   }
 
   useEffect(() => {
@@ -86,6 +111,18 @@ const Post = ({ post }) => {
           }
         })
     }
+    const getCommentsNum = async () => {
+      getDocs(query(collection(database, `allPosts/${id}/allComments`), orderBy('dateAdded', 'asc')))
+        .then((snapshot) => {
+          setCommentsNumber(snapshot.size);
+          // let comments = [];
+          // snapshot.forEach((comment) => {
+          //     comments.push(comment.data());
+          // })
+          // setComments(comments);
+        })
+    }
+    getCommentsNum();
     controlMyLikes();
   }, []);
 
@@ -97,7 +134,7 @@ const Post = ({ post }) => {
           <div>
             <small style={{ display: "block" }}><b>{owner.name}</b></small>
             <small style={{ display: "block", fontSize: "10px" }}>{owner.email}</small>
-            <small style={{ display: "block", fontSize: "10px" }}>{new Date(dateAdded).getFullYear()}</small>
+            <small style={{ display: "block", fontSize: "10px" }}><Moment fromNow>{dateAdded}</Moment></small>
           </div>
         </div>
         <IconButton>
@@ -120,8 +157,8 @@ const Post = ({ post }) => {
         </li>
         <li style={{ marginRight: "10px" }}>
           <b style={{ color: "#0072b1" }}>
-            <span style={{ marginRight: "4px" }}>{commentsNum}</span>
-            <span>comments</span>
+            <span style={{ marginRight: "4px" }}>{commentsNumber}</span>
+            <span>{commentsNumber <= 1 ? 'comment' : 'comments'}</span>
           </b>
         </li>
         <li>
@@ -137,22 +174,23 @@ const Post = ({ post }) => {
         }} />
         <label htmlFor={id} style={{ margin: "5px 0px 10px 10px", cursor: "pointer", color: checked ? '#0072b1' : 'grey' }}><i className="fa-solid fa-thumbs-up"></i></label>
         <IconButton onClick={openCommentInput}>
-          <CommentIcon style={{ fontSize: "18px", color: "#0072b1" }} />
+          <CommentIcon style={{ fontSize: "18px", color: openComment ? "#0072b1" : "grey" }} />
         </IconButton>
-        {
-          openComment ?
-            <div style={{ width: "100%" }}>
-              <input type="text" style={{ width: "94%" }} onChange={(e) => {
-                setCommentText(e.target.value);
-              }}/>
-              <IconButton style={{ width: "6%" }} disabled={commentText?false:true}>
-                <SendIcon />
-              </IconButton>
-            </div>
-            :
-            <></>
-        }
       </div>
+
+      {
+        openComment ?
+          <div style={{ width: "100%", display: "flex" }}>
+            <textarea value={commentText} style={{ width: "94%", height: "70px", resize: "none" }} placeholder='Enter comments...' onChange={(e) => {
+              setCommentText(e.target.value);
+            }}></textarea>
+            <IconButton style={{ width: "6%", alignSelf: "flex-end" }} disabled={commentText ? false : true} onClick={sendCommentFunc}>
+              <SendIcon />
+            </IconButton>
+          </div>
+          :
+          <></>
+      }
       {
         commentsSec ?
           <Comments />

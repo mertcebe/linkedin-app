@@ -8,7 +8,8 @@ import { Provider } from 'react-redux';
 let initialState = {
   signUpCollapsed: true,
   startPost: false,
-  commentsSec: false
+  commentsSec: false,
+  postIdForComment: ''
 };
 
 const reducer = (state = initialState, action) => {
@@ -26,7 +27,8 @@ const reducer = (state = initialState, action) => {
     case "SET_COMMENTS":
       return {
         ...state,
-        commentsSec: action.payload
+        commentsSec: action.payload,
+        postIdForComment: action.postIdForComment
       };
     default:
       return state;
