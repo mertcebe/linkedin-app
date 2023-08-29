@@ -8,6 +8,7 @@ import useAuthorized from '../useAuth/useAuthorized'
 import { ToastContainer } from 'react-toastify'
 import PublicRoute from '../routes/PublicRoute'
 import 'react-toastify/dist/ReactToastify.css';
+import ProfilePage from '../components/ProfilePage'
 
 const AppRouter = () => {
     let { isAuthorized, loading } = useAuthorized();
@@ -23,6 +24,7 @@ const AppRouter = () => {
                 <Routes>
                     <Route element={<PrivateRoute isAuthorized={isAuthorized} />}>
                         <Route path='/home' element={<Home />} />
+                        <Route path='/profile' element={<ProfilePage />} />
                     </Route>
                     <Route element={<PublicRoute isAuthorized={isAuthorized} />}>
                         <Route path='/' element={<SignInPage />} />

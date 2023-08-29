@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import logo from '../images/Linkedin-logo-png.png'
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase/firebaseConfig'
@@ -9,6 +9,7 @@ import { Typography, Box, Tooltip, IconButton, Avatar, Menu, MenuItem, Divider, 
 import ListIcon from '@mui/icons-material/List';
 
 const Navbar = ({ active }) => {
+    let navigate = useNavigate();
     // for profile button
     const [anchorEl, setAnchorEl] = useState(null);
     let [size, setSize] = useState(window.innerWidth);
@@ -35,6 +36,12 @@ const Navbar = ({ active }) => {
         signOut(auth);
         setAnchorEl(null);
     }
+
+    const openProfileFunc = () => {
+        navigate('/profile');
+        setAnchorEl(null);
+    }
+
     let signUpCollapsed = useSelector((state) => {
         return state.signUpCollapsed;
     })
@@ -146,7 +153,7 @@ const Navbar = ({ active }) => {
                                         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                                         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                                     >
-                                        <MenuItem onClick={handleClose}>
+                                        <MenuItem onClick={openProfileFunc}>
                                             <Avatar /> Profile
                                         </MenuItem>
                                         <MenuItem onClick={signOutFunc}>
@@ -207,7 +214,7 @@ const Navbar = ({ active }) => {
                                         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                                         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                                     >
-                                        <MenuItem onClick={handleClose}>
+                                        <MenuItem onClick={openProfileFunc}>
                                             <Avatar /> Profile
                                         </MenuItem>
                                         <MenuItem onClick={signOutFunc}>

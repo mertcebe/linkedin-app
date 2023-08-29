@@ -49,6 +49,31 @@ body {
     overflow: auto;
 }
 
+.profileImgEl{
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.myProfileImg{
+    border-radius: 50%;
+}
+
+.updateIcon{
+    transition: all 0.4s ease;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.myProfileImg:hover > img{
+    opacity: 0.5;
+    border-radius: 0;
+}
+
+.myProfileImg:hover > .updateIcon{
+    opacity: 1;
+    visibility: visible;
+}
+
 
 @media(max-width: 900px){
     .signInPage{
