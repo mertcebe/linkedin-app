@@ -57,7 +57,6 @@ const Posts = () => {
                 let post = {
                     text: text,
                     likes: 0,
-                    comments: 0,
                     img: await snapshot,
                     dateAdded: new Date().getTime()
                 };

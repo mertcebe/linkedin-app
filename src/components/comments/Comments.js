@@ -39,7 +39,7 @@ const Comments = () => {
 
     if (!comments) {
         return (
-            <Loading />
+            <></>
         )
     }
     return (
@@ -53,9 +53,16 @@ const Comments = () => {
                 </div>
                 <div className='commentsMade'>
                     {
-                        comments.map((comment) => {
-                            return <MyComment comment={comment} />
-                        })
+                        comments.length === 0 ?
+                            <small><i>No comments</i></small>
+                        :
+                            <>
+                                {
+                                    comments.map((comment) => {
+                                        return <MyComment comment={comment} />
+                                    })
+                                }
+                            </>
                     }
                 </div>
             </div>

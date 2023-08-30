@@ -157,7 +157,7 @@ const Post = ({ post }) => {
         </li>
         <li style={{ marginRight: "10px" }}>
           <b style={{ color: "#0072b1" }}>
-            <span style={{ marginRight: "4px" }}>{commentsNumber}</span>
+            <span style={{ marginRight: "4px" }}>{commentsNumber === 0 ? 'No' : commentsNumber}</span>
             <span>{commentsNumber <= 1 ? 'comment' : 'comments'}</span>
           </b>
         </li>

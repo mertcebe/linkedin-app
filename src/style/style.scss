@@ -58,20 +58,15 @@ body {
     border-radius: 50%;
 }
 
-.updateIcon{
-    transition: all 0.4s ease;
-    opacity: 0;
-    visibility: hidden;
-}
-
 .myProfileImg:hover > img{
     opacity: 0.5;
     border-radius: 0;
 }
 
-.myProfileImg:hover > .updateIcon{
-    opacity: 1;
-    visibility: visible;
+#profilePosts{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 
@@ -93,6 +88,23 @@ body {
         width: 100%;
     }
     .reccomendSec{
+        width: 100%;
+    }
+    #profilePosts{
+        flex-direction: column;
+    }
+    .profile{
+        width: 100%;
+        text-align: center;
+    }
+    .myProfileImg{
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .myPosts{
+        width: 100%;
+    }
+    .myLikes{
         width: 100%;
     }
 }
