@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import backImg from '../images/linkedin-back.svg';
+import linkedinSVGImg from '../images/linkedinSVGImg.svg';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect, updateProfile } from 'firebase/auth';
 import database, { auth } from '../firebase/firebaseConfig';
 import { toast } from 'react-toastify';
@@ -86,7 +86,7 @@ const SignInPage = () => {
                     <button onClick={signInWithGoogle} style={{ width: "100%", padding: "10px 0", background: "#fff", borderRadius: "30px", border: "1px solid #0072b1", color: "#0072b1" }}><i className="fa-brands fa-google"></i> Sign in with Google</button>
                 </div>
                 <div style={{ alignSelf: "end" }}>
-                    <img src={backImg} alt="" style={{ width: "700px", pointerEvents: "none" }} />
+                    <img src={linkedinSVGImg} alt="" style={{ width: "700px", pointerEvents: "none" }} />
                 </div>
             </div>
         </>

@@ -9,12 +9,14 @@ import { ToastContainer } from 'react-toastify'
 import PublicRoute from '../routes/PublicRoute'
 import 'react-toastify/dist/ReactToastify.css';
 import ProfilePage from '../components/ProfilePage'
+import OnePost from '../components/OnePost'
+import Loading from '../components/Loading'
 
 const AppRouter = () => {
     let { isAuthorized, loading } = useAuthorized();
     if (!loading) {
         return (
-            <h5>loading...</h5>
+            <Loading />
         )
     }
     return (
@@ -24,6 +26,7 @@ const AppRouter = () => {
                 <Routes>
                     <Route element={<PrivateRoute isAuthorized={isAuthorized} />}>
                         <Route path='/home' element={<Home />} />
+                        <Route path='/home/:id' element={<OnePost />} />
                         <Route path='/profile' element={<ProfilePage />} />
                     </Route>
                     <Route element={<PublicRoute isAuthorized={isAuthorized} />}>

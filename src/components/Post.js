@@ -20,6 +20,7 @@ const Post = ({ post }) => {
   let [openComment, setOpenComment] = useState(false);
   let [commentText, setCommentText] = useState();
   let [commentsNumber, setCommentsNumber] = useState(commentsNum);
+  let [readMoreControl, setReadMoreControl] = useState(false);
 
   let commentsSec = useSelector((state) => {
     return state.commentsSec;
@@ -99,6 +100,10 @@ const Post = ({ post }) => {
     setCommentText('');
   }
 
+  const showMoreFunc = () => {
+    setReadMoreControl(!readMoreControl);
+  }
+
   useEffect(() => {
     const controlMyLikes = async () => {
       getDoc(doc(database, `users/${auth.currentUser.uid}/myLikes/${id}`))
@@ -141,11 +146,22 @@ const Post = ({ post }) => {
           <MoreHorizIcon />
         </IconButton>
       </div>
-      <p className='m-0 py-1'>{text}</p>
+      <div className='m-0 py-2' style={{ width: "100%", overflow: "hidden", wordWrap: "break-word" }}>
+        <p className='d-inline' style={{ width: "100%" }}>{text.length > 100 ? readMoreControl ? text : `${text.slice(0, 100)}...` : text}</p>
+        {
+          text.length > 100 ?
+            readMoreControl ?
+              <button className='d-inline' style={{ background: "transparent", border: "none", padding: "0", margin: "0 5px", fontSize: "11px", color: "grey", cursor: "pointer" }} onClick={showMoreFunc}><b>read less</b></button>
+              :
+              <button className='d-inline' style={{ background: "transparent", border: "none", padding: "0", margin: "0", fontSize: "11px", color: "grey", cursor: "pointer" }} onClick={showMoreFunc}><b>read more</b></button>
+            :
+            <></>
+        }
+      </div>
       {
         img ?
           <div>
-            <img src={img.src} alt="" style={{ width: "100%" }} />
+            <img src={img.src} alt="" style={{ width: "100%", pointerEvents: "none" }} />
           </div>
           :
           <></>

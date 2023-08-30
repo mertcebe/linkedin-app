@@ -9,7 +9,8 @@ let initialState = {
   signUpCollapsed: true,
   startPost: false,
   commentsSec: false,
-  postIdForComment: ''
+  postIdForComment: '',
+  toHomePost: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -29,6 +30,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         commentsSec: action.payload,
         postIdForComment: action.postIdForComment
+      };
+    case "SET_BACK_COLOR":
+      return {
+        ...state,
+        toHomePost: action.payload
       };
     default:
       return state;

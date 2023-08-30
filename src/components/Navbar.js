@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import linkedinLogo from '../images/linkedinLogo.png';
 import { Typography, Box, Tooltip, IconButton, Avatar, Menu, MenuItem, Divider, ListItemIcon, Button } from '@mui/material'
 import ListIcon from '@mui/icons-material/List';
+import Loading from './Loading'
 
 const Navbar = ({ active }) => {
     let navigate = useNavigate();

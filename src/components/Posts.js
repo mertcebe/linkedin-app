@@ -12,6 +12,8 @@ import { addDoc, collection, doc, getDocs, orderBy, query, setDoc } from 'fireba
 import { toast } from 'react-toastify';
 import Loading from './Loading';
 import { UploadImgToStorage } from './uploadImgToStorage/UploadImgToStorage';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import ReactPlayer from 'react-player'
 
 const Posts = () => {
     let [text, setText] = useState();
@@ -19,6 +21,8 @@ const Posts = () => {
     let [posts, setPosts] = useState();
     let [loading, setLoading] = useState(false);
     let [file, setFile] = useState();
+    let [linkInput, setLinkInput] = useState(false);
+    let [videoLink, setVideoLink] = useState(false);
 
     const getPosts = async () => {
         await getDocs(query(collection(database, `allPosts`), orderBy('dateAdded', 'desc')))
@@ -41,16 +45,25 @@ const Posts = () => {
     let startPost = useSelector((state) => {
         return state.startPost;
     })
+    let toHomePost = useSelector((state) => {
+        return state.toHomePost;
+    })
+
     let dispatch = useDispatch();
+    
     const startPostFunc = () => {
         dispatch({
             type: "SET_START_POST",
             payload: !startPost
         });
         setSelectedImg(null);
+        setLinkInput(false);
+        setVideoLink(null)
     }
     const postAPost = async () => {
         setLoading(true);
+        setLinkInput(false);
+        setVideoLink(null)
         startPostFunc();
         await UploadImgToStorage(file, auth.currentUser.uid)
             .then(async (snapshot) => {
@@ -127,6 +140,22 @@ const Posts = () => {
                                         :
                                         <></>
                                 }
+                                {
+                                    linkInput ?
+                                        <div style={{textAlign: "center", margin: "5px 0"}}>
+                                            <input type="text" style={{ width: "96%", border: "1px solid #000" }} onChange={(e) => {
+                                                setVideoLink(e.target.value);
+                                            }} placeholder='Enter a video link' />
+                                            {
+                                                videoLink?
+                                                <ReactPlayer controls width={'100%'} height={'300px'} style={{boxSizing: "border-box", padding: "20px"}} url={videoLink}/>
+                                                :
+                                                <></>
+                                            }
+                                        </div>
+                                        :
+                                        <></>
+                                }
                             </div>
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -144,7 +173,11 @@ const Posts = () => {
                                         console.log(src, e.target.files[0].name)
                                     }} />
                                     <label htmlFor="fileInput1" style={{ cursor: "pointer", color: "grey" }}><ImageIcon /></label>
-                                    <button>youtube</button>
+                                    <IconButton onClick={() => {
+                                        setLinkInput(!linkInput);
+                                    }}>
+                                        <YouTubeIcon />
+                                    </IconButton>
                                     <button>text</button>
                                 </div>
                                 <IconButton onClick={postAPost} disabled={text || selectedImg ? false : true} style={{ color: text || selectedImg ? '#0072b1' : 'grey' }}>
@@ -158,10 +191,10 @@ const Posts = () => {
             }
 
             {/* start a post */}
-            <div className='shadow-sm' style={{ borderRadius: "20px", backgroundColor: "#fff", margin: "10px 0" }}>
+            <div className='shadow-sm startAPost' style={{ borderRadius: "20px", backgroundColor: "#fff", margin: "10px 0" }}>
                 <div className='d-flex align-items-center' style={{ padding: "10px" }}>
                     <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "10px" }} />
-                    <button onClick={startPostFunc} style={{ width: "100%", borderRadius: "40px", background: "transparent", border: "1px solid #dfdfdf", color: "grey", textAlign: "left", padding: "10px 16px" }}><b>Start a post</b></button>
+                    <button onClick={startPostFunc} style={{ width: "100%", borderRadius: "40px", background: toHomePost ? '#6ba7ba' : 'transparent', border: "1px solid #dfdfdf", color: toHomePost ? "#fff" : "grey", textAlign: "left", padding: "10px 16px", transition: "all 0.3s ease" }}><b>Start a post</b></button>
                 </div>
                 <div className='d-flex justify-content-center align-items-center'>
                     <button style={{ background: "transparent", border: "none", width: "20%" }}>Photo</button>
