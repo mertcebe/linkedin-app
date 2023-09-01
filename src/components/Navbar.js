@@ -11,6 +11,14 @@ import Loading from './Loading'
 
 const Navbar = ({ active }) => {
     let navigate = useNavigate();
+    let dispatch = useDispatch();
+
+    //* signUpNavbar
+    let signUpCollapsed = useSelector((state) => {
+        return state.signUpCollapsed;
+    })
+
+    //* appNavbar
     // for profile button
     const [anchorEl, setAnchorEl] = useState(null);
     let [size, setSize] = useState(window.innerWidth);
@@ -32,7 +40,6 @@ const Navbar = ({ active }) => {
         setAnchorElForMenu(null);
     };
 
-
     const signOutFunc = () => {
         signOut(auth);
         setAnchorEl(null);
@@ -43,13 +50,10 @@ const Navbar = ({ active }) => {
         setAnchorEl(null);
     }
 
-    let signUpCollapsed = useSelector((state) => {
-        return state.signUpCollapsed;
-    })
     window.addEventListener('resize', (e) => {
         setSize(e.target.innerWidth);
     })
-    let dispatch = useDispatch();
+
     if (active === 'signInNavbar') {
         return (
             <div className="navbar navbar-expand-sm navbar-light d-flex justify-content-between px-4">

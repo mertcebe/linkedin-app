@@ -9,13 +9,11 @@ import Loading from '../Loading';
 
 const Comments = () => {
     let [comments, setComments] = useState();
-    let commentsSec = useSelector((state) => {
-        return state.commentsSec;
-    });
-    let postIdForComment = useSelector((state) => {
-        return state.postIdForComment;
+    let [commentsSec, postIdForComment] = useSelector((state) => {
+        return [state.commentsSec, state.postIdForComment];
     });
     let dispatch = useDispatch();
+
     const setCommentFunc = () => {
         dispatch({
             type: "SET_COMMENTS",
@@ -25,7 +23,7 @@ const Comments = () => {
 
     useEffect(() => {
         const getComments = async () => {
-            getDocs(query(collection(database, `allPosts/${postIdForComment}/allComments`), orderBy('dateAdded', 'asc')))
+            await getDocs(query(collection(database, `allPosts/${postIdForComment}/allComments`), orderBy('dateAdded', 'asc')))
                 .then((snapshot) => {
                     let comments = [];
                     snapshot.forEach((comment) => {
@@ -58,8 +56,8 @@ const Comments = () => {
                         :
                             <>
                                 {
-                                    comments.map((comment) => {
-                                        return <MyComment comment={comment} />
+                                    comments.map((comment, index) => {
+                                        return <MyComment comment={comment} key={index} />
                                     })
                                 }
                             </>

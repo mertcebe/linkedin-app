@@ -25,7 +25,6 @@ const SignInPage = () => {
         return state.signUpCollapsed;
     })
 
-    let navigate = useNavigate();
     const signInWithGoogle = () => {
         let provider = new GoogleAuthProvider();
         signInWithRedirect(auth, provider)
@@ -33,6 +32,7 @@ const SignInPage = () => {
                 toast.success('Successfully sign in!')
             })
     }
+
     const submitFunc = (e) => {
         e.preventDefault();
         if (email && password) {
@@ -53,6 +53,7 @@ const SignInPage = () => {
             toast.dark('Enter a password!');
         }
     }
+    
     return (
         <>
             {

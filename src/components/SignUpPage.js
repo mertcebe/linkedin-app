@@ -8,14 +8,15 @@ import ImageIcon from '@mui/icons-material/Image';
 import { UploadImgToStorage } from './uploadImgToStorage/UploadImgToStorage';
 
 const SignUpPage = () => {
-    let signUpCollapsed = useSelector((state) => {
-        return state.signUpCollapsed;
-    })
-    let dispatch = useDispatch();
     let [name, setName] = useState();
     let [email, setEmail] = useState();
     let [password, setPassword] = useState();
     let [file, setFile] = useState();
+
+    let signUpCollapsed = useSelector((state) => {
+        return state.signUpCollapsed;
+    })
+    let dispatch = useDispatch();
 
     const signUpFunc = (e) => {
         e.preventDefault();
@@ -45,6 +46,7 @@ const SignUpPage = () => {
                 })
         }
     }
+
     return (
         <div id='signUpPage'
             style={{

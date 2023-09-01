@@ -42,15 +42,12 @@ const Posts = () => {
         getPosts();
     }, []);
 
-    let startPost = useSelector((state) => {
-        return state.startPost;
-    })
-    let toHomePost = useSelector((state) => {
-        return state.toHomePost;
+    let [startPost, toHomePost] = useSelector((state) => {
+        return [state.startPost, state.toHomePost];
     })
 
     let dispatch = useDispatch();
-    
+
     const startPostFunc = () => {
         dispatch({
             type: "SET_START_POST",
@@ -62,8 +59,6 @@ const Posts = () => {
     }
     const postAPost = async () => {
         setLoading(true);
-        setLinkInput(false);
-        setVideoLink(null)
         startPostFunc();
         await UploadImgToStorage(file, auth.currentUser.uid)
             .then(async (snapshot) => {
@@ -93,7 +88,6 @@ const Posts = () => {
                             })
                     })
             })
-        setSelectedImg(null);
     }
 
     if (!posts) {
@@ -142,15 +136,15 @@ const Posts = () => {
                                 }
                                 {
                                     linkInput ?
-                                        <div style={{textAlign: "center", margin: "5px 0"}}>
+                                        <div style={{ textAlign: "center", margin: "5px 0" }}>
                                             <input type="text" style={{ width: "96%", border: "1px solid #000" }} onChange={(e) => {
                                                 setVideoLink(e.target.value);
                                             }} placeholder='Enter a video link' />
                                             {
-                                                videoLink?
-                                                <ReactPlayer controls width={'100%'} height={'300px'} style={{boxSizing: "border-box", padding: "20px"}} url={videoLink}/>
-                                                :
-                                                <></>
+                                                videoLink ?
+                                                    <ReactPlayer controls width={'100%'} height={'300px'} style={{ boxSizing: "border-box", padding: "20px" }} url={videoLink} />
+                                                    :
+                                                    <></>
                                             }
                                         </div>
                                         :
@@ -170,7 +164,6 @@ const Posts = () => {
                                             type: e.target.files[0].type,
                                             self: e.target.files[0]
                                         })
-                                        console.log(src, e.target.files[0].name)
                                     }} />
                                     <label htmlFor="fileInput1" style={{ cursor: "pointer", color: "grey" }}><ImageIcon /></label>
                                     <IconButton onClick={() => {
@@ -222,7 +215,7 @@ const Posts = () => {
                             }
                         </>
                         :
-                        <></>
+                        <small><i>No post</i></small>
                 }
             </div>
         </div>

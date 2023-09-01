@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import defaultProfileImg from '../images/profileImg2.jpg';
-import { IconButton } from '@mui/material';
+import { Button, IconButton, Menu, MenuItem } from '@mui/material';
 import CommentIcon from '@mui/icons-material/Comment';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc } from 'firebase/firestore';
@@ -11,6 +11,8 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import SendIcon from '@mui/icons-material/Send';
 import Moment from 'react-moment'
 import { toast } from 'react-toastify';
+import ProfilePage from './ProfilePage';
+import { Link, NavLink, Navigate, useNavigate } from 'react-router-dom';
 
 const Post = ({ post }) => {
   const { text, comments: commentsNum, likes, owner, img, dateAdded, id } = post;
@@ -21,11 +23,14 @@ const Post = ({ post }) => {
   let [commentText, setCommentText] = useState();
   let [commentsNumber, setCommentsNumber] = useState(commentsNum);
   let [readMoreControl, setReadMoreControl] = useState(false);
+  let [savedPost, setSavedPost] = useState(false);
 
   let commentsSec = useSelector((state) => {
     return state.commentsSec;
   });
   let dispatch = useDispatch();
+
+  let navigate = useNavigate();
 
   // look at this one more time***************
 
@@ -117,19 +122,64 @@ const Post = ({ post }) => {
         })
     }
     const getCommentsNum = async () => {
-      getDocs(query(collection(database, `allPosts/${id}/allComments`), orderBy('dateAdded', 'asc')))
+      getDocs(query(collection(database, `allPosts/${id}/allComments`)))
         .then((snapshot) => {
           setCommentsNumber(snapshot.size);
-          // let comments = [];
-          // snapshot.forEach((comment) => {
-          //     comments.push(comment.data());
-          // })
-          // setComments(comments);
         })
     }
-    getCommentsNum();
+    const controlMySaved = async () => {
+      getDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`))
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            setSavedPost(true);
+          }
+          else {
+            setSavedPost(false);
+          }
+        })
+    }
+    controlMySaved();
     controlMyLikes();
+    getCommentsNum();
   }, []);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const savePost = () => {
+    setDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`), {
+      ...post
+    })
+      .then(() => {
+        toast.dark('Successfully saved!');
+      })
+  }
+
+  const deleteSavedPost = () => {
+    deleteDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`))
+      .then(() => {
+        toast.dark('Successfully deleted my saved posts!');
+      })
+  }
+
+  const gotoProfileFunc = () => {
+    if(auth.currentUser.uid !== owner.uid){
+      navigate(`/profile/${owner.uid}`);
+    }
+    else{
+      navigate('/profile')
+    }
+  }
+
+  const deletePost = () => {
+
+  }
 
   return (
     <div className='shadow-sm' style={{ backgroundColor: "#fff", boxSizing: "border-box", padding: "10px", margin: "10px 0", borderRadius: "10px" }}>
@@ -142,9 +192,43 @@ const Post = ({ post }) => {
             <small style={{ display: "block", fontSize: "10px" }}><Moment fromNow>{dateAdded}</Moment></small>
           </div>
         </div>
-        <IconButton>
+        <IconButton
+          id="demo-positioned-button"
+          aria-controls={open ? 'demo-positioned-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          onClick={handleClick}
+        >
           <MoreHorizIcon />
         </IconButton>
+        <Menu
+          id="demo-positioned-menu"
+          aria-labelledby="demo-positioned-button"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          {
+            savedPost ?
+              <MenuItem onClick={deleteSavedPost}>Delete my saved posts</MenuItem>
+              :
+              <MenuItem onClick={savePost}>Save</MenuItem>
+          }
+          <MenuItem onClick={gotoProfileFunc} className="nav-item">
+            {`Go to ${owner.name}'s profile`}
+          </MenuItem>
+          <MenuItem onClick={deletePost} className="nav-item">
+            <NavLink to='/profile' className="nav-link">Delete this post</NavLink>
+          </MenuItem>
+        </Menu>
       </div>
       <div className='m-0 py-2' style={{ width: "100%", overflow: "hidden", wordWrap: "break-word" }}>
         <p className='d-inline' style={{ width: "100%" }}>{text.length > 100 ? readMoreControl ? text : `${text.slice(0, 100)}...` : text}</p>

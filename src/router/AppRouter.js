@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ProfilePage from '../components/ProfilePage'
 import OnePost from '../components/OnePost'
 import Loading from '../components/Loading'
+import ProfilePageOther from '../components/ProfilePageOther'
 
 const AppRouter = () => {
     let { isAuthorized, loading } = useAuthorized();
@@ -28,6 +29,7 @@ const AppRouter = () => {
                         <Route path='/home' element={<Home />} />
                         <Route path='/home/:id' element={<OnePost />} />
                         <Route path='/profile' element={<ProfilePage />} />
+                        <Route path='/profile/:id' element={<ProfilePageOther />} />
                     </Route>
                     <Route element={<PublicRoute isAuthorized={isAuthorized} />}>
                         <Route path='/' element={<SignInPage />} />

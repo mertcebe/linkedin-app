@@ -6,17 +6,15 @@ const useAuthorized = () => {
     let [isAuthorized, setIsAuthorized] = useState();
     let [loading, setLoading] = useState(false);
     onAuthStateChanged(auth, (user) => {
-        if(user){
+        if (user) {
             setIsAuthorized(true);
         }
-        else{
+        else {
             setIsAuthorized(false);
         }
         setLoading(true);
     })
-    return (
-        {isAuthorized, loading}
-    )
+    return { isAuthorized, loading }
 }
 
 export default useAuthorized
