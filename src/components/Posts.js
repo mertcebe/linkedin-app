@@ -37,10 +37,12 @@ const Posts = () => {
                 setPosts(allPosts);
             })
     }
-
+    let refreshPosts = useSelector((state) => {
+        return state.refreshPosts;
+    });
     useEffect(() => {
         getPosts();
-    }, []);
+    }, [refreshPosts]);
 
     let [startPost, toHomePost] = useSelector((state) => {
         return [state.startPost, state.toHomePost];
@@ -62,6 +64,7 @@ const Posts = () => {
         startPostFunc();
         await UploadImgToStorage(file, auth.currentUser.uid)
             .then(async (snapshot) => {
+                console.log(snapshot);
                 let post = {
                     text: text,
                     likes: 0,
@@ -129,7 +132,7 @@ const Posts = () => {
                                                     <CloseIcon />
                                                 </IconButton>
                                             </div>
-                                            <img src={selectedImg.src} alt="" style={{ width: "100%", borderRadius: "10px", marginBottom: "10px" }} />
+                                            <img src={selectedImg.src} alt="" style={{ width: "100%", height: "300px", borderRadius: "10px", marginBottom: "10px" }} />
                                         </>
                                         :
                                         <></>

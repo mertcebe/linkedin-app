@@ -9,6 +9,9 @@ import Comments from './comments/Comments';
 import { useDispatch, useSelector } from 'react-redux';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import SendIcon from '@mui/icons-material/Send';
+import DeleteIcon from '@mui/icons-material/Delete';
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Moment from 'react-moment'
 import { toast } from 'react-toastify';
 import ProfilePage from './ProfilePage';
@@ -25,8 +28,8 @@ const Post = ({ post }) => {
   let [readMoreControl, setReadMoreControl] = useState(false);
   let [savedPost, setSavedPost] = useState(false);
 
-  let commentsSec = useSelector((state) => {
-    return state.commentsSec;
+  let [commentsSec, refreshPosts] = useSelector((state) => {
+    return [state.commentsSec, state.refreshPosts];
   });
   let dispatch = useDispatch();
 
@@ -103,10 +106,29 @@ const Post = ({ post }) => {
           })
       })
     setCommentText('');
+    getCommentsNum();
   }
 
   const showMoreFunc = () => {
     setReadMoreControl(!readMoreControl);
+  }
+
+  const getCommentsNum = async () => {
+    getDocs(query(collection(database, `allPosts/${id}/allComments`)))
+      .then((snapshot) => {
+        setCommentsNumber(snapshot.size);
+      })
+  }
+  const controlMySaved = async () => {
+    getDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          setSavedPost(true);
+        }
+        else {
+          setSavedPost(false);
+        }
+      })
   }
 
   useEffect(() => {
@@ -121,27 +143,10 @@ const Post = ({ post }) => {
           }
         })
     }
-    const getCommentsNum = async () => {
-      getDocs(query(collection(database, `allPosts/${id}/allComments`)))
-        .then((snapshot) => {
-          setCommentsNumber(snapshot.size);
-        })
-    }
-    const controlMySaved = async () => {
-      getDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`))
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            setSavedPost(true);
-          }
-          else {
-            setSavedPost(false);
-          }
-        })
-    }
     controlMySaved();
     controlMyLikes();
     getCommentsNum();
-  }, []);
+  }, [savedPost, commentsNumber]);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -159,6 +164,8 @@ const Post = ({ post }) => {
       .then(() => {
         toast.dark('Successfully saved!');
       })
+    setAnchorEl(null);
+    controlMySaved();
   }
 
   const deleteSavedPost = () => {
@@ -166,19 +173,33 @@ const Post = ({ post }) => {
       .then(() => {
         toast.dark('Successfully deleted my saved posts!');
       })
+    setAnchorEl(null);
+    controlMySaved();
   }
 
   const gotoProfileFunc = () => {
-    if(auth.currentUser.uid !== owner.uid){
+    if (auth.currentUser.uid !== owner.uid) {
       navigate(`/profile/${owner.uid}`);
     }
-    else{
+    else {
       navigate('/profile')
     }
+    setAnchorEl(null);
   }
 
   const deletePost = () => {
-
+    deleteDoc(doc(database, `users/${auth.currentUser.uid}/posts/${id}`))
+      .then(() => {
+        deleteDoc(doc(database, `allPosts/${id}`))
+          .then(() => {
+            toast.done('Successfully this post is deleted!');
+          })
+      })
+    setAnchorEl(null);
+    dispatch({
+      type: "SET_REFRESH",
+      payload: !refreshPosts
+    });
   }
 
   return (
@@ -218,16 +239,21 @@ const Post = ({ post }) => {
         >
           {
             savedPost ?
-              <MenuItem onClick={deleteSavedPost}>Delete my saved posts</MenuItem>
+              <MenuItem onClick={deleteSavedPost}><BookmarksIcon /> Delete my saved posts</MenuItem>
               :
-              <MenuItem onClick={savePost}>Save</MenuItem>
+              <MenuItem onClick={savePost}><BookmarksIcon /> Save</MenuItem>
           }
           <MenuItem onClick={gotoProfileFunc} className="nav-item">
-            {`Go to ${owner.name}'s profile`}
+            <AccountCircleIcon />{`Go to ${owner.name}'s profile`}
           </MenuItem>
-          <MenuItem onClick={deletePost} className="nav-item">
-            <NavLink to='/profile' className="nav-link">Delete this post</NavLink>
-          </MenuItem>
+          {
+            auth.currentUser.uid === owner.uid ?
+              <MenuItem onClick={deletePost} className="nav-item">
+                <DeleteIcon /> Delete this post
+              </MenuItem>
+              :
+              <></>
+          }
         </Menu>
       </div>
       <div className='m-0 py-2' style={{ width: "100%", overflow: "hidden", wordWrap: "break-word" }}>

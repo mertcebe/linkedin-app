@@ -10,7 +10,8 @@ let initialState = {
   startPost: false,
   commentsSec: false,
   postIdForComment: '',
-  toHomePost: false
+  toHomePost: false,
+  refreshPosts: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -35,6 +36,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         toHomePost: action.payload
+      };
+    case "SET_REFRESH":
+      return {
+        ...state,
+        refreshPosts: action.payload
       };
     default:
       return state;

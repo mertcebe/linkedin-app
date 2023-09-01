@@ -16,7 +16,7 @@ const ProfilePageOther = () => {
                 ...snapshot.data()
             });
         })
-    }, []);
+    }, [id]);
     if(!user){
         return (
             <Loading />

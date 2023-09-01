@@ -8,7 +8,7 @@ const Home = () => {
     <div className='container home'>
       <div className='myAccountSec'>My Account</div>
       <div className='postsSec'><Posts /></div>
-      <div className='reccomendSec'>Recommend</div>
+      <div className='reccomendSec'>add job posting</div>
     </div>
   )
 }
