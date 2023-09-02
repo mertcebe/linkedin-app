@@ -4,44 +4,59 @@ body {
     background-color: #eff3f5;
 }
 
+::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #66bbda;
+    border-radius: 5px;
+}
+
 .form-control:hover {
     background-color: #d1dde4;
 }
 
-.signInPage{
+.signInPage {
     display: flex;
     justify-content: space-between;
     width: 100%;
     height: 92vh;
 }
 
-.signInPart{
+.signInPart {
     width: 50%;
     box-sizing: border-box;
     padding: 100px;
 }
 
-.home{
+.home {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
-.myAccountSec{
+.myAccountSec {
     width: 20%;
     background-color: lightblue;
 }
-.postsSec{
+
+.postsSec {
     width: 50%;
 }
-.reccomendSec{
-    width: 20%;
-    background-color: lightblue;
+
+.jobPosts {
+    width: 25%;
 }
 
 
 
-.commentsMade{
+.commentsMade {
     width: 100%;
     height: 400px;
     box-sizing: border-box;
@@ -50,76 +65,89 @@ body {
     overflow: auto;
 }
 
-.profileImgEl{
+.profileImgEl {
     border-radius: 50%;
     transition: all 0.2s ease;
 }
 
-.myProfileImg{
+.myProfileImg {
     border-radius: 50%;
 }
 
-.myProfileImg:hover > img{
+.myProfileImg:hover>img {
     opacity: 0.5;
     border-radius: 0;
 }
 
-#profilePosts{
+#profilePosts {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
-.commentedPosts{
+.commentedPosts {
     width: 200px;
 }
 
 
-@media(max-width: 900px){
-    .signInPage{
+@media(max-width: 1100px) {
+    .signInPage {
         flex-direction: column;
     }
-    .signInPart{
+
+    .signInPart {
         width: 100%;
         padding: 50px;
     }
-    .home{
+
+    .home {
         flex-direction: column;
     }
-    .myAccountSec{
+
+    .myAccountSec {
         width: 100%;
     }
-    .postsSec{
+
+    .postsSec {
         width: 100%;
     }
-    .reccomendSec{
+
+    .jobPosts {
         width: 100%;
     }
-    #profilePosts{
+
+    #profilePosts {
         flex-direction: column;
     }
-    .profile{
+
+    .profile {
         width: 100%;
         text-align: center;
     }
-    .myProfileImg{
+
+    .myProfileImg {
         left: 50%;
         transform: translateX(-50%);
     }
-    .myPosts{
+
+    .myPosts {
         width: 100%;
     }
-    .myLikes{
+
+    .myLikes {
         width: 100%;
     }
-    .savedPosts{
+
+    .savedPosts {
         width: 100%;
     }
-    .eachSavedPost{
+
+    .eachSavedPost {
         width: 100% !important;
         text-align: left;
     }
-    .commentedPosts{
+
+    .commentedPosts {
         width: 100%;
     }
 }

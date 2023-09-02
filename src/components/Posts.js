@@ -23,6 +23,10 @@ const Posts = () => {
     let [file, setFile] = useState();
     let [linkInput, setLinkInput] = useState(false);
     let [videoLink, setVideoLink] = useState(false);
+    
+    let [startPost, toHomePost, refreshPosts] = useSelector((state) => {
+        return [state.startPost, state.toHomePost, state.refreshPosts];
+    })
 
     const getPosts = async () => {
         await getDocs(query(collection(database, `allPosts`), orderBy('dateAdded', 'desc')))
@@ -37,16 +41,11 @@ const Posts = () => {
                 setPosts(allPosts);
             })
     }
-    let refreshPosts = useSelector((state) => {
-        return state.refreshPosts;
-    });
+
     useEffect(() => {
         getPosts();
     }, [refreshPosts]);
 
-    let [startPost, toHomePost] = useSelector((state) => {
-        return [state.startPost, state.toHomePost];
-    })
 
     let dispatch = useDispatch();
 
@@ -59,6 +58,7 @@ const Posts = () => {
         setLinkInput(false);
         setVideoLink(null)
     }
+    
     const postAPost = async () => {
         setLoading(true);
         startPostFunc();
@@ -174,7 +174,6 @@ const Posts = () => {
                                     }}>
                                         <YouTubeIcon />
                                     </IconButton>
-                                    <button>text</button>
                                 </div>
                                 <IconButton onClick={postAPost} disabled={text || selectedImg ? false : true} style={{ color: text || selectedImg ? '#0072b1' : 'grey' }}>
                                     <SendIcon />

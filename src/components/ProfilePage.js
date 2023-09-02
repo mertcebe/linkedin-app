@@ -203,7 +203,7 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                             <div className='eachSavedPost' style={{ width: "300px" }}>
                                 {
                                     savedPosts.length === 0 ?
-                                        <small className='text-muted'><i>No my likes</i></small>
+                                        <small className='text-muted'><i>No my saved post</i></small>
                                         :
                                         <>
                                             {
