@@ -13,7 +13,7 @@ let largePost = {
 const JobPost = ({ post, type }) => {
     if (type === 'small') {
         return (
-            <NavLink to={`/jobPosts/${post.id}`} className='d-flex my-2 shadow-sm p-2' style={{alignItems: "flex-start", textDecoration: "none", color: "#000", position: "relative"}}>
+            <NavLink to={`/jobs/${post.id}`} className='d-flex my-2 shadow-sm p-2' style={{alignItems: "flex-start", textDecoration: "none", color: "#000", position: "relative"}}>
                 <div>
                     <img src={post.owner.photoURL} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "10px", pointerEvents: "none" }} />
                 </div>
@@ -28,13 +28,15 @@ const JobPost = ({ post, type }) => {
     }
     else if (type === 'large') {
         return (
-            <div className='d-flex align-items-start my-3 shadow p-2'>
+            <div className='d-flex align-items-start my-3 shadow-sm p-2'>
                 <div>
                     <img src={post.owner.photoURL} alt="" style={{ width: "60px", height: "60px", borderRadius: "50%", marginRight: "10px" }} />
                 </div>
                 <div>
-                    <p className='p-0 m-0' style={{ fontFamily: "serif" }}>{post.job}</p>
-                    <small className='p-0 m-0' style={{ fontFamily: "serif", color: "gray" }}><i className="fa-solid fa-location-dot" style={{ color: '#000' }}></i> {post.location}</small>
+                    <p className='p-0 m-0' style={{ fontFamily: "serif", fontSize: "22px" }}><b>{post.job}</b></p>
+                    <small className='p-0 m-0' style={{ fontFamily: "serif", color: "#5c5c5c", display: "block", fontSize: "18px" }}>{post.company}</small>
+                    <small className='p-0 m-0' style={{ fontFamily: "serif", color: "gray", display: "block", fontSize: "18px" }}><i className="fa-solid fa-location-dot" style={{ color: '#5c5c5c' }}></i> {post.location}</small>
+                    <small className='p-0 m-0' style={{ fontFamily: "serif", color: "gray", display: "block", fontSize: "16px" }}><Moment fromNow>{post.dateAdded}</Moment></small>
                 </div>
             </div>
         )

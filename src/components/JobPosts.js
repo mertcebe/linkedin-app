@@ -2,7 +2,8 @@ import React, { useEffect, useReducer, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import database, { auth } from '../firebase/firebaseConfig';
 import profileImg3 from '../images/profileImg3.jpg';
-import { Button, Divider, IconButton } from '@mui/material';
+import { Button, Divider, FormControl, FormHelperText, IconButton, MenuItem } from '@mui/material';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import WorkIcon from '@mui/icons-material/Work';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import SendIcon from '@mui/icons-material/Send';
@@ -19,6 +20,14 @@ const JobPosts = () => {
     let [text, setText] = useState();
     let [jobPosts, setJobPosts] = useState();
     let [control, setControl] = useState(false);
+
+    // experience level
+    let [experienceLevel, setExperienceLevel] = useState('');
+    const handleChange = (e) => {
+        console.log(e.target.value);
+        setExperienceLevel(e.target.value);
+    };
+
     let startJobPost = useSelector((state) => {
         return state.startJobPost;
     });
@@ -35,6 +44,7 @@ const JobPosts = () => {
             type: "SET_ALL_NULL"
         })
         setText('');
+        setExperienceLevel('');
     };
 
     const postAJobPost = () => {
@@ -47,6 +57,7 @@ const JobPosts = () => {
                 uid: auth.currentUser.uid,
                 photoURL: auth.currentUser.photoURL
             },
+            experienceLevel: experienceLevel,
             dateAdded: new Date().getTime()
         })
             .then((snapshot) => {
@@ -59,6 +70,7 @@ const JobPosts = () => {
                         toast.success('Successfully created a job post!');
                         startJobPostFunc();
                         setControl(!control);
+                        setExperienceLevel('');
                     })
             })
     }
@@ -68,6 +80,7 @@ const JobPosts = () => {
         salary: 0,
         location: '',
         job: '',
+        experienceLevel: '',
         lastDate: ''
     };
     let [stateForJob, dispatchForJob] = useReducer(jobReducer, initialState);
@@ -86,7 +99,7 @@ const JobPosts = () => {
             })
     }, [control]);
 
-    if(!jobPosts){
+    if (!jobPosts) {
         return (
             <Loading />
         )
@@ -96,7 +109,7 @@ const JobPosts = () => {
             {
                 startJobPost ?
                     <div style={{ position: "fixed", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
-                        <div style={{ position: "absolute", top: "50%", left: "50%", background: `url(${jobBackImg}) no-repeat`, backgroundSize: "cover", transform: "translate(-50%, -50%)", width: "600px", borderRadius: "5px", padding: "10px" }}>
+                        <div style={{ position: "absolute", top: "50%", left: "50%", background: `url(${jobBackImg}) no-repeat`, backgroundSize: "cover", transform: "translate(-50%, -50%)", width: "700px", borderRadius: "5px", padding: "10px" }}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <b>Create a job post</b>
                                 <IconButton onClick={startJobPostFunc}>
@@ -139,6 +152,26 @@ const JobPosts = () => {
                                 }} style={{ width: "75%", border: "none", background: "transparent", borderBottom: "1px solid #000", outline: "none" }} />
                             </div>
 
+                            <FormControl sx={{ my: 1, minWidth: 40, display: "flex", flexDirection: "row" }}>
+                                <label htmlFor="jobInput5" style={{ width: "20%" }}>Experience level</label>
+                                <Select
+                                    value={experienceLevel}
+                                    id='jobInput5'
+                                    onChange={handleChange}
+                                    displayEmpty
+                                    inputProps={{ 'aria-label': 'Without label' }}
+                                    sx={{height: "40px"}}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    <MenuItem value={'beginner'}>Beginner</MenuItem>
+                                    <MenuItem value={'intern'}>Intern</MenuItem>
+                                    <MenuItem value={'intermediate'}>Intermediate</MenuItem>
+                                    <MenuItem value={'expert'}>Expert</MenuItem>
+                                </Select>
+                            </FormControl>
+
                             <div className='my-2'>
                                 <label htmlFor="jobInput5" style={{ width: "20%" }}>Last date</label>
                                 <input type="date" id='jobInput5' onChange={(e) => {
@@ -173,13 +206,13 @@ const JobPosts = () => {
                 {
                     jobPosts.slice(0, 5).map((post) => {
                         return (
-                            <JobPost post={post} type={'small'} key={post.id}/>
+                            <JobPost post={post} type={'small'} key={post.id} />
                         )
                     })
                 }
                 <Button onClick={() => {
                     navigate('/jobs')
-                }} style={{fontSize: "9px"}}>Show All</Button>
+                }} style={{ fontSize: "9px" }}>Show All</Button>
             </div>
         </div>
     )
