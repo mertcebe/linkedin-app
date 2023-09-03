@@ -21,11 +21,15 @@ const JobPosts = () => {
     let [jobPosts, setJobPosts] = useState();
     let [control, setControl] = useState(false);
 
-    // experience level
+    // experience level and sectors
     let [experienceLevel, setExperienceLevel] = useState('');
+    let [sectors, setSectors] = useState('');
     const handleChange = (e) => {
-        console.log(e.target.value);
         setExperienceLevel(e.target.value);
+    };
+
+    const handleChangeForSectors = (e) => {
+        setSectors(e.target.value);
     };
 
     let startJobPost = useSelector((state) => {
@@ -45,6 +49,7 @@ const JobPosts = () => {
         })
         setText('');
         setExperienceLevel('');
+        setSectors('');
     };
 
     const postAJobPost = () => {
@@ -58,6 +63,7 @@ const JobPosts = () => {
                 photoURL: auth.currentUser.photoURL
             },
             experienceLevel: experienceLevel,
+            sectors: sectors,
             dateAdded: new Date().getTime()
         })
             .then((snapshot) => {
@@ -71,6 +77,7 @@ const JobPosts = () => {
                         startJobPostFunc();
                         setControl(!control);
                         setExperienceLevel('');
+                        setSectors('');
                     })
             })
     }
@@ -109,7 +116,7 @@ const JobPosts = () => {
             {
                 startJobPost ?
                     <div style={{ position: "fixed", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
-                        <div style={{ position: "absolute", top: "50%", left: "50%", background: `url(${jobBackImg}) no-repeat`, backgroundSize: "cover", transform: "translate(-50%, -50%)", width: "700px", borderRadius: "5px", padding: "10px" }}>
+                        <div style={{ position: "absolute", top: "50%", left: "50%", background: `url(${jobBackImg}) no-repeat`, backgroundSize: "cover", transform: "translate(-50%, -50%)", width: "900px", borderRadius: "5px", padding: "20px" }}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <b>Create a job post</b>
                                 <IconButton onClick={startJobPostFunc}>
@@ -165,10 +172,36 @@ const JobPosts = () => {
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    <MenuItem value={'beginner'}>Beginner</MenuItem>
-                                    <MenuItem value={'intern'}>Intern</MenuItem>
-                                    <MenuItem value={'intermediate'}>Intermediate</MenuItem>
-                                    <MenuItem value={'expert'}>Expert</MenuItem>
+                                    <MenuItem value={'Beginner'}>Beginner</MenuItem>
+                                    <MenuItem value={'Intern'}>Intern</MenuItem>
+                                    <MenuItem value={'Intermediate'}>Intermediate</MenuItem>
+                                    <MenuItem value={'Expert'}>Expert</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            <FormControl sx={{ my: 1, minWidth: 40, display: "flex", flexDirection: "row" }}>
+                                <label htmlFor="jobInput6" style={{ width: "20%" }}>Sectors</label>
+                                <Select
+                                    value={sectors}
+                                    id='jobInput6'
+                                    onChange={handleChangeForSectors}
+                                    displayEmpty
+                                    inputProps={{ 'aria-label': 'Without label' }}
+                                    sx={{height: "40px"}}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    <MenuItem value={'Healty'}>Healty</MenuItem>
+                                    <MenuItem value={'Restaurant'}>Restaurant</MenuItem>
+                                    <MenuItem value={'Technology, Information and Internet'}>Technology, Information and Internet</MenuItem>
+                                    <MenuItem value={'Software'}>Software</MenuItem>
+                                    <MenuItem value={'Internet Broadcasting'}>Internet Broadcasting</MenuItem>
+                                    <MenuItem value={'Real estate'}>Real estate</MenuItem>
+                                    <MenuItem value={'Advertising Services'}>Advertising Services</MenuItem>
+                                    <MenuItem value={'High education'}>High education</MenuItem>
+                                    <MenuItem value={'Design'}>Design</MenuItem>
+                                    <MenuItem value={'Others'}>Others</MenuItem>
                                 </Select>
                             </FormControl>
 
@@ -204,7 +237,7 @@ const JobPosts = () => {
             {/* job posts */}
             <div className='bg-light p-2 shadow-sm rounded'>
                 {
-                    jobPosts.slice(0, 5).map((post) => {
+                    jobPosts.slice(0, 4).map((post) => {
                         return (
                             <JobPost post={post} type={'small'} key={post.id} />
                         )

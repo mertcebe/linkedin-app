@@ -54,6 +54,10 @@ body {
     width: 25%;
 }
 
+.eachPosts{
+    width: 290px;
+}
+
 
 
 .commentsMade {
@@ -136,6 +140,14 @@ body {
 
     .myLikes {
         width: 100%;
+    }
+
+    .myJobPosts {
+        width: 100%;
+    }
+
+    .eachPosts{
+        width: 100% !important;
     }
 
     .savedPosts {

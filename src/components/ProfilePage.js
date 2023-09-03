@@ -13,6 +13,8 @@ import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import JobPost from './JobPost';
+import WorkIcon from '@mui/icons-material/Work';
 
 const ProfilePage = ({ user = auth.currentUser }) => {
     let [posts, setPosts] = useState();
@@ -21,6 +23,7 @@ const ProfilePage = ({ user = auth.currentUser }) => {
     let [commentedPostsNum, setCommentedPostsNum] = useState(4);
     let [savedPosts, setSavedPosts] = useState();
     let [savedPostsNum, setSavedPostsNum] = useState(2);
+    let [jobPosts, setJobPosts] = useState();
     let navigate = useNavigate();
     useEffect(() => {
         const getPosts = async () => {
@@ -95,6 +98,20 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                     setSavedPosts(posts);
                 })
         }
+        const getJobPosts = async () => {
+            getDocs(query(collection(database, `users/${user.uid}/jobPosts`), orderBy('dateAdded', 'desc')))
+                .then((snapshot) => {
+                    let posts = [];
+                    snapshot.forEach((post) => {
+                        posts.push({
+                            ...post.data(),
+                            id: post.id
+                        });
+                    })
+                    setJobPosts(posts);
+                })
+        }
+        getJobPosts();
         getSavedPosts();
         getCommentedPosts()
         getMyLikes();
@@ -246,7 +263,7 @@ const ProfilePage = ({ user = auth.currentUser }) => {
             {/* my posts */}
             <div className='shadow-sm myPosts' style={{ backgroundColor: "#e3f0f8", display: "inline-block", padding: "10px", borderRadius: "10px", marginBottom: "14px" }}>
                 <h5><AllInboxIcon /> {user.uid === auth.currentUser.uid ? 'My' : 'User'} Posts</h5>
-                <div style={{ width: "450px" }}>
+                <div className='eachPosts'>
                     {
                         posts.length === 0 ?
                             <div>
@@ -270,7 +287,7 @@ const ProfilePage = ({ user = auth.currentUser }) => {
             {/* my likes */}
             <div className='shadow-sm myLikes' style={{ backgroundColor: "#e3f0f8", display: "inline-block", padding: "10px", borderRadius: "10px", marginBottom: "14px" }}>
                 <h5><ThumbUpAltIcon /> {user.uid === auth.currentUser.uid ? 'My' : 'User'} Likes</h5>
-                <div style={{ width: "450px" }}>
+                <div className='eachPosts'>
                     {
                         myLikes.length === 0 ?
                             <small className='text-muted'><i>No my likes</i></small>
@@ -283,6 +300,29 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                                 }
                             </>
                     }
+                </div>
+            </div>
+
+            <div className='shadow-sm myJobPosts' style={{ backgroundColor: "#e3f0f8", display: "inline-block", padding: "10px", borderRadius: "10px", marginBottom: "14px" }}>
+                <h5><WorkIcon /> {user.uid === auth.currentUser.uid ? 'My' : 'User'} Job Posts</h5>
+                <div className='eachPosts'>
+                    {
+                        jobPosts.length === 0 ?
+                            <div>
+                                <small className='text-muted'><i>No posts</i></small>
+                            </div>
+                            :
+                            <>
+                                {
+                                    jobPosts.map((post) => {
+                                        return <JobPost user={user} type={'small'} post={post} />
+                                    })
+                                }
+                            </>
+                    }
+                    <Button onClick={() => {
+                        navigate('/jobs')
+                    }} style={{ fontSize: "9px" }}>Show All Job Posts</Button>
                 </div>
             </div>
 
