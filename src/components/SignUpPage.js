@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, deleteUser, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '../firebase/firebaseConfig';
@@ -23,7 +23,7 @@ const SignUpPage = () => {
         if (name && email && password) {
             createUserWithEmailAndPassword(auth, email, password)
                 .then(async (userCredentials) => {
-                    await UploadImgToStorage(file, auth.currentUser.uid)
+                    await UploadImgToStorage(file, userCredentials.user.uid)
                         .then((snapshot) => {
                             updateProfile(userCredentials.user, {
                                 displayName: name,
@@ -99,10 +99,11 @@ const SignUpPage = () => {
                     </div>
                     <div style={{ margin: "10px 0" }}>
                         <input type="file" id='profileImgInput' onChange={(e) => {
+                            let myFile = e.target.files[0];
                             setFile({
-                                name: e.target.files[0].name,
-                                type: e.target.files[0].type,
-                                self: e.target.files[0]
+                                name: myFile.name,
+                                type: myFile.type,
+                                self: myFile
                             });
                         }} style={{ display: "none" }} />
                         <label htmlFor="profileImgInput" style={{ cursor: "pointer", color: "#0072b1" }}><ImageIcon /> <small>Add an avatar</small></label>

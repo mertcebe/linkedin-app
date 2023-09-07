@@ -92,7 +92,12 @@ body {
 .commentedPosts {
     width: 200px;
 }
-
+.jobDesc{
+    position: sticky;
+    top: 10px;
+    margin: 10px;
+    width: 50%;
+}
 
 @media(max-width: 1100px) {
     .signInPage {
@@ -161,5 +166,22 @@ body {
 
     .commentedPosts {
         width: 100%;
+    }
+
+    .filters{
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .allJobs{
+        flex-direction: column-reverse !important;
+    }
+
+    .jobs{
+        width: 100% !important;
+    }
+    .jobDesc{
+        width: 100% !important;
+        position: relative;
     }
 }

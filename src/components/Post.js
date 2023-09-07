@@ -119,6 +119,7 @@ const Post = ({ post }) => {
         setCommentsNumber(snapshot.size);
       })
   }
+
   const controlMySaved = async () => {
     getDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`))
       .then((snapshot) => {
@@ -158,9 +159,7 @@ const Post = ({ post }) => {
   };
 
   const savePost = () => {
-    setDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`), {
-      ...post
-    })
+    setDoc(doc(database, `users/${auth.currentUser.uid}/savedPost/${id}`), post)
       .then(() => {
         toast.dark('Successfully saved!');
       })

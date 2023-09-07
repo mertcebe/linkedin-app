@@ -12,7 +12,8 @@ let initialState = {
   postIdForComment: '',
   toHomePost: false,
   refreshPosts: false,
-  startJobPost: false
+  startJobPost: false,
+  applyForJob: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -49,6 +50,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         startJobPost: action.payload
+      };
+    case "SET_APPLY_A_JOB":
+      return {
+        ...state,
+        applyForJob: action.payload
       };
     default:
       return state;

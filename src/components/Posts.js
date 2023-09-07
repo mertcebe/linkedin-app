@@ -23,7 +23,7 @@ const Posts = () => {
     let [file, setFile] = useState();
     let [linkInput, setLinkInput] = useState(false);
     let [videoLink, setVideoLink] = useState(false);
-    
+
     let [startPost, toHomePost, refreshPosts] = useSelector((state) => {
         return [state.startPost, state.toHomePost, state.refreshPosts];
     })
@@ -58,13 +58,12 @@ const Posts = () => {
         setLinkInput(false);
         setVideoLink(null)
     }
-    
+
     const postAPost = async () => {
         setLoading(true);
         startPostFunc();
         await UploadImgToStorage(file, auth.currentUser.uid)
             .then(async (snapshot) => {
-                console.log(snapshot);
                 let post = {
                     text: text,
                     likes: 0,
@@ -158,14 +157,15 @@ const Posts = () => {
                                 <div>
                                     <input type="file" style={{ display: "none" }} id='fileInput1' onChange={(e) => {
                                         let src = URL.createObjectURL(e.target.files[0]);
+                                        let myFile = e.target.files[0];
                                         setSelectedImg({
                                             src: src,
-                                            name: e.target.files[0].name
+                                            name: myFile.name
                                         });
                                         setFile({
-                                            name: e.target.files[0].name,
-                                            type: e.target.files[0].type,
-                                            self: e.target.files[0]
+                                            name: myFile.name,
+                                            type: myFile.type,
+                                            self: myFile
                                         })
                                     }} />
                                     <label htmlFor="fileInput1" style={{ cursor: "pointer", color: "grey" }}><ImageIcon /></label>

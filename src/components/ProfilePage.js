@@ -61,7 +61,6 @@ const ProfilePage = ({ user = auth.currentUser }) => {
         const getCommentedPosts = async () => {
             getDocs(query(collection(database, `allPosts`), orderBy('dateAdded', 'desc')))
                 .then((snapshot) => {
-                    let ids = [];
                     let commentedPosts = [];
                     snapshot.forEach(async (post) => {
                         let myPost = {
@@ -127,7 +126,6 @@ const ProfilePage = ({ user = auth.currentUser }) => {
             payload: true,
         })
         setTimeout(() => {
-            console.log("girdi");
             dispatch({
                 type: "SET_BACK_COLOR",
                 payload: false,
@@ -303,6 +301,7 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                 </div>
             </div>
 
+            {/* job posts */}
             <div className='shadow-sm myJobPosts' style={{ backgroundColor: "#e3f0f8", display: "inline-block", padding: "10px", borderRadius: "10px", marginBottom: "14px" }}>
                 <h5><WorkIcon /> {user.uid === auth.currentUser.uid ? 'My' : 'User'} Job Posts</h5>
                 <div className='eachPosts'>

@@ -12,6 +12,7 @@ const Jobs = () => {
     let [jobs, setJobs] = useState();
     let [companies, setCompanies] = useState();
     let [locations, setLocations] = useState();
+    let [sectors, setSectors] = useState();
 
     // company
     let [company, setCompany] = useState('');
@@ -28,9 +29,15 @@ const Jobs = () => {
     const handleChangeForLocation = (e) => {
         setLocation(e.target.value);
     };
+    // experience level
     let [experienceLevel, setExperienceLevel] = useState('');
     const handleChangeForExperienceLevel = (e) => {
         setExperienceLevel(e.target.value);
+    };
+    // sectors
+    let [sector, setSector] = useState('');
+    const handleChangeForSector = (e) => {
+        setSector(e.target.value);
     };
 
     const getJobs = () => {
@@ -70,6 +77,20 @@ const Jobs = () => {
                     setLocations(newLocations);
                 })
         }
+        const getSectors = () => {
+            getDocs(query(collection(database, `allJobPosts`), orderBy('dateAdded', 'desc')))
+                .then((snapshot) => {
+                    let sectors = [];
+                    snapshot.forEach((job) => {
+                        if (job.data().sectors) {
+                            sectors.push(job.data().sectors);
+                        }
+                    })
+                    let newSectors = Array.from(new Set(sectors));
+                    setSectors(newSectors);
+                })
+        }
+        getSectors();
         getLocation();
         getCompanies();
         getJobs();
@@ -87,15 +108,111 @@ const Jobs = () => {
                                 if (job.data().location === location) {
                                     if (experienceLevel !== '') {
                                         if (job.data().experienceLevel === experienceLevel) {
-                                            if(salary !== ''){
-                                                if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
+                                            if (salary !== '') {
+                                                if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                                    if (sector !== '') {
+                                                        if (job.data().sectors === sector) {
+                                                            jobs.push({
+                                                                ...job.data(),
+                                                                id: job.id
+                                                            });
+                                                        }
+                                                    }
+                                                    else {
+                                                        jobs.push({
+                                                            ...job.data(),
+                                                            id: job.id
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                if (sector !== '') {
+                                                    if (job.data().sectors === sector) {
+                                                        jobs.push({
+                                                            ...job.data(),
+                                                            id: job.id
+                                                        });
+                                                    }
+                                                }
+                                                else {
                                                     jobs.push({
                                                         ...job.data(),
                                                         id: job.id
                                                     });
                                                 }
                                             }
-                                            else{
+                                        }
+                                    }
+                                    else {
+                                        if (sector !== '') {
+                                            if (job.data().sectors === sector) {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                        else {
+                                            jobs.push({
+                                                ...job.data(),
+                                                id: job.id
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                if (experienceLevel !== '') {
+                                    if (job.data().experienceLevel === experienceLevel) {
+                                        if (salary !== '') {
+                                            if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                                if (sector !== '') {
+                                                    if (job.data().sectors === sector) {
+                                                        jobs.push({
+                                                            ...job.data(),
+                                                            id: job.id
+                                                        });
+                                                    }
+                                                }
+                                                else {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            if (sector !== '') {
+                                                if (job.data().sectors === sector) {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                            else {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (salary !== '') {
+                                        if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                            if (sector !== '') {
+                                                if (job.data().sectors === sector) {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                            else {
                                                 jobs.push({
                                                     ...job.data(),
                                                     id: job.id
@@ -104,46 +221,20 @@ const Jobs = () => {
                                         }
                                     }
                                     else {
-                                        jobs.push({
-                                            ...job.data(),
-                                            id: job.id
-                                        });
-                                    }
-                                }
-                            }
-                            else {
-                                if (experienceLevel !== '') {
-                                    if (job.data().experienceLevel === experienceLevel) {
-                                        if(salary !== ''){
-                                            if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
+                                        if (sector !== '') {
+                                            if (job.data().sectors === sector) {
                                                 jobs.push({
                                                     ...job.data(),
                                                     id: job.id
                                                 });
                                             }
                                         }
-                                        else{
+                                        else {
                                             jobs.push({
                                                 ...job.data(),
                                                 id: job.id
                                             });
                                         }
-                                    }
-                                }
-                                else {
-                                    if(salary !== ''){
-                                        if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
-                                            jobs.push({
-                                                ...job.data(),
-                                                id: job.id
-                                            });
-                                        }
-                                    }
-                                    else{
-                                        jobs.push({
-                                            ...job.data(),
-                                            id: job.id
-                                        });
                                     }
                                 }
                             }
@@ -154,15 +245,131 @@ const Jobs = () => {
                             if (job.data().location === location) {
                                 if (experienceLevel !== '') {
                                     if (job.data().experienceLevel === experienceLevel) {
-                                        if(salary !== ''){
-                                            if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
+                                        if (salary !== '') {
+                                            if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                                if (sector !== '') {
+                                                    if (job.data().sectors === sector) {
+                                                        jobs.push({
+                                                            ...job.data(),
+                                                            id: job.id
+                                                        });
+                                                    }
+                                                }
+                                                else {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            if (sector !== '') {
+                                                if (job.data().sectors === sector) {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                            else {
                                                 jobs.push({
                                                     ...job.data(),
                                                     id: job.id
                                                 });
                                             }
                                         }
-                                        else{
+                                    }
+                                }
+                                else {
+                                    if (salary !== '') {
+                                        if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                            if (sector !== '') {
+                                                if (job.data().sectors === sector) {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                            else {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        if (sector !== '') {
+                                            if (job.data().sectors === sector) {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                        else {
+                                            jobs.push({
+                                                ...job.data(),
+                                                id: job.id
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            if (experienceLevel !== '') {
+                                if (job.data().experienceLevel === experienceLevel) {
+                                    if (salary !== '') {
+                                        if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                            if (sector !== '') {
+                                                if (job.data().sectors === sector) {
+                                                    jobs.push({
+                                                        ...job.data(),
+                                                        id: job.id
+                                                    });
+                                                }
+                                            }
+                                            else {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        if (sector !== '') {
+                                            if (job.data().sectors === sector) {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                        else {
+                                            jobs.push({
+                                                ...job.data(),
+                                                id: job.id
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                if (salary !== '') {
+                                    if (Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary) {
+                                        if (sector !== '') {
+                                            if (job.data().sectors === sector) {
+                                                jobs.push({
+                                                    ...job.data(),
+                                                    id: job.id
+                                                });
+                                            }
+                                        }
+                                        else {
                                             jobs.push({
                                                 ...job.data(),
                                                 id: job.id
@@ -171,56 +378,20 @@ const Jobs = () => {
                                     }
                                 }
                                 else {
-                                    if(salary !== ''){
-                                        if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
+                                    if (sector !== '') {
+                                        if (job.data().sectors === sector) {
                                             jobs.push({
                                                 ...job.data(),
                                                 id: job.id
                                             });
                                         }
                                     }
-                                    else{
+                                    else {
                                         jobs.push({
                                             ...job.data(),
                                             id: job.id
                                         });
                                     }
-                                }
-                            }
-                        }
-                        else {
-                            if (experienceLevel !== '') {
-                                if (job.data().experienceLevel === experienceLevel) {
-                                    if(salary !== ''){
-                                        if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
-                                            jobs.push({
-                                                ...job.data(),
-                                                id: job.id
-                                            });
-                                        }
-                                    }
-                                    else{
-                                        jobs.push({
-                                            ...job.data(),
-                                            id: job.id
-                                        });
-                                    }
-                                }
-                            }
-                            else {
-                                if(salary !== ''){
-                                    if(Number(job.data().salary.slice(0, job.data().salary.length - 1)) >= salary){
-                                        jobs.push({
-                                            ...job.data(),
-                                            id: job.id
-                                        });
-                                    }
-                                }
-                                else{
-                                    jobs.push({
-                                        ...job.data(),
-                                        id: job.id
-                                    });
                                 }
                             }
                         }
@@ -236,6 +407,7 @@ const Jobs = () => {
         setSalary('');
         setLocation('');
         setExperienceLevel('');
+        setSector('');
     }
 
     if (!jobs) {
@@ -246,7 +418,7 @@ const Jobs = () => {
     return (
         <div className='container'>
             {/* filter section */}
-            <div className='d-flex align-items-center'>
+            <div className='d-flex align-items-center filters'>
                 <FormControl sx={{ my: 1, mr: 2, minWidth: 40, display: "flex", flexDirection: "row" }}>
                     <Select
                         value={company}
@@ -327,16 +499,37 @@ const Jobs = () => {
                         <MenuItem value={'expert'}>Expert</MenuItem>
                     </Select>
                 </FormControl>
+                <FormControl sx={{ my: 1, mr: 2, minWidth: 40, display: "flex", flexDirection: "row" }}>
+                    <Select
+                        value={sector}
+                        id='jobInput5'
+                        onChange={handleChangeForSector}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Without label' }}
+                        sx={{ height: "40px" }}
+                    >
+                        <MenuItem value="">
+                            <em>Sector</em>
+                        </MenuItem>
+                        {
+                            sectors.map((item) => {
+                                return (
+                                    <MenuItem value={item}>{item}</MenuItem>
+                                )
+                            })
+                        }
+                    </Select>
+                </FormControl>
                 <Button onClick={applyFunc}>Apply</Button>
                 <Button onClick={resetFunc}>Reset</Button>
             </div>
 
             {/* jobs */}
-            <div className='d-flex' style={{ alignItems: "flex-start" }}>
+            <div className='d-flex allJobs' style={{ alignItems: "flex-start" }}>
                 {/* jobs title */}
-                <div style={{ width: "50%" }}>
+                <div className='jobs' style={{ width: "50%" }}>
                     {
-                        jobs.map((job, index) => {
+                        jobs.map((job) => {
                             return (
                                 <JobPost post={job} type={'large'} key={job.id} />
                             )
@@ -346,7 +539,7 @@ const Jobs = () => {
                 {/* jobs desc */}
                 {
                     id ?
-                        <div className='bg-light' style={{ position: "sticky", top: "10px", margin: "10px", width: "50%" }}>
+                        <div className='bg-light jobDesc'>
                             <Job id={id} />
                         </div>
                         :

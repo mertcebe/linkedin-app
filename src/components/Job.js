@@ -3,7 +3,12 @@ import React, { useEffect, useState } from 'react'
 import Loading from './Loading';
 import database, { auth } from '../firebase/firebaseConfig'
 import Moment from 'react-moment';
-import { Button, Divider } from '@mui/material';
+import { Button, Divider, IconButton, TextField, Typography } from '@mui/material';
+import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import profileImg3 from '../images/profileImg3.jpg';
+import { TagsInput } from "react-tag-input-component";
 
 const Job = ({ id }) => {
   let [post, setPost] = useState();
@@ -18,6 +23,24 @@ const Job = ({ id }) => {
       })
     setShowMore(false);
   }, [id]);
+
+  const applyForJob = useSelector((state) => {
+    return state.applyForJob;
+  });
+
+  let dispatch = useDispatch();
+
+  const applyForJobFunc = () => {
+    dispatch({
+      type: "SET_APPLY_A_JOB",
+      payload: !applyForJob
+    });
+  }
+
+  // tags input
+  const [selected, setSelected] = useState([]);
+
+
   if (!post || loading) {
     return (
       <Loading />
@@ -25,6 +48,40 @@ const Job = ({ id }) => {
   }
   return (
     <div style={{ padding: "20px 10px", overflow: "auto", height: "650px" }}>
+      {/* applyForJob */}
+      {
+        applyForJob ?
+          <div style={{ position: "fixed", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
+            <div style={{ position: "absolute", top: "50%", left: "50%", background: "#fff", transform: "translate(-50%, -50%)", width: "500px", padding: "20px" }}>
+              <div className="d-flex justify-content-between align-items-center">
+                <b>Apply for a job</b>
+                <IconButton onClick={applyForJobFunc}>
+                  <HighlightOffIcon />
+                </IconButton>
+              </div>
+              <Divider />
+              <div className='p-2'>
+                <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "10px" }} />
+                <small><b>{auth.currentUser.displayName}</b></small>
+              </div>
+              <div className='my-3'>
+                <TextField id="standard-basic" label="name" variant="standard" sx={{ width: "100%", my: "5px" }} />
+                <TextField id="standard-basic" label="surname" variant="standard" sx={{ width: "100%", my: "5px" }} />
+                <TextField id="standard-basic" label="age" variant="standard" type='number' sx={{ width: "100%", my: "5px" }} />
+                <TextField id="standard-basic" label="descripe yourself" variant="standard" sx={{ width: "100%", my: "5px", mb: "20px" }} />
+                <p className='my-1'>Skills</p>
+                <TagsInput
+                  value={selected}
+                  onChange={setSelected}
+                  name="skills"
+                  placeHolder="enter your skills"
+                />
+              </div>
+            </div>
+          </div>
+          :
+          <></>
+      }
       <img src={post.owner.photoURL} alt="" style={{ width: "70px", height: "70px", borderRadius: "50%" }} />
       <div>
         <h4 className='my-2'>{post.job}</h4>
@@ -33,7 +90,7 @@ const Job = ({ id }) => {
         {
           auth.currentUser.uid !== post.owner.uid ?
             <div className='d-flex'>
-              <Button sx={{ mr: "10px" }}>Apply<i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: "5px" }}></i></Button>
+              <Button sx={{ mr: "10px" }} onClick={applyForJobFunc}>Apply<i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: "5px" }}></i></Button>
               <Button>Save</Button>
             </div>
             :

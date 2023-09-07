@@ -70,6 +70,8 @@ const JobPosts = () => {
                 setDoc(doc(database, `users/${auth.currentUser.uid}/jobPosts/${snapshot.id}`), {
                     ...stateForJob,
                     description: text,
+                    experienceLevel: experienceLevel,
+                    sectors: sectors,
                     dateAdded: new Date().getTime()
                 })
                     .then(() => {
@@ -167,15 +169,15 @@ const JobPosts = () => {
                                     onChange={handleChange}
                                     displayEmpty
                                     inputProps={{ 'aria-label': 'Without label' }}
-                                    sx={{height: "40px"}}
+                                    sx={{ height: "40px" }}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    <MenuItem value={'Beginner'}>Beginner</MenuItem>
-                                    <MenuItem value={'Intern'}>Intern</MenuItem>
-                                    <MenuItem value={'Intermediate'}>Intermediate</MenuItem>
-                                    <MenuItem value={'Expert'}>Expert</MenuItem>
+                                    <MenuItem value={'beginner'}>Beginner</MenuItem>
+                                    <MenuItem value={'intern'}>Intern</MenuItem>
+                                    <MenuItem value={'intermediate'}>Intermediate</MenuItem>
+                                    <MenuItem value={'expert'}>Expert</MenuItem>
                                 </Select>
                             </FormControl>
 
@@ -187,7 +189,7 @@ const JobPosts = () => {
                                     onChange={handleChangeForSectors}
                                     displayEmpty
                                     inputProps={{ 'aria-label': 'Without label' }}
-                                    sx={{height: "40px"}}
+                                    sx={{ height: "40px" }}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>

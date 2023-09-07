@@ -82,7 +82,9 @@ const Navbar = ({ active }) => {
         return (
             <div className="navbar navbar-expand-sm navbar-light bg-light d-flex justify-content-between px-4">
                 <div className='d-flex align-items-center'>
-                    <Link className="navbar-brand" to='/home'><img src={linkedinLogo} alt="" style={{ width: "36px", pointerEvents: "none" }} /></Link>
+                    <Link className="navbar-brand" to='/home'>
+                        <img src={linkedinLogo} alt="" style={{ width: "36px", pointerEvents: "none" }} />
+                    </Link>
                     <form className="form-inline my-2 my-lg-0" style={{ position: "relative" }}>
                         <label htmlFor='searchInput1' style={{ position: "absolute", top: "6px", left: "10px" }}><i className="fa-solid fa-magnifying-glass"></i></label>
                         <input className="form-control mr-sm-2" id='searchInput1' style={{ paddingLeft: "30px" }} type="search" placeholder="Search" />
