@@ -1,5 +1,5 @@
-import { doc, getDoc } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react'
+import { addDoc, collection, doc, getDoc, getDocs, query, setDoc } from 'firebase/firestore';
+import React, { useEffect, useReducer, useState } from 'react'
 import Loading from './Loading';
 import database, { auth } from '../firebase/firebaseConfig'
 import Moment from 'react-moment';
@@ -9,17 +9,39 @@ import { useDispatch, useSelector } from 'react-redux';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import profileImg3 from '../images/profileImg3.jpg';
 import { TagsInput } from "react-tag-input-component";
+import { jobApplyReducer, setValuesForApply } from './jobReducer/jobApplyReducer';
+import DoneIcon from '@mui/icons-material/Done';
 
 const Job = ({ id }) => {
   let [post, setPost] = useState();
   let [showMore, setShowMore] = useState(false);
   let [loading, setLoading] = useState(false);
+  let [owner, setOwner] = useState();
+  // let [appliedJobIds, setAppliedJobIds] = useState();
+  let [isApplied, setIsApplied] = useState(false);
+  // tags input
+  const [selected, setSelected] = useState([]);
+
   useEffect(() => {
     setLoading(true);
+    getDocs(query(collection(database, `users/${auth.currentUser.uid}/myJobApplications`)))
+    .then((snapshot) => {
+      let appliedJobIds = [];
+      snapshot.forEach((job) => {
+        appliedJobIds.push(job.data().jobAppliedFor.id);
+      })
+      if(appliedJobIds.includes(id)){
+        setIsApplied(true);
+      }
+      else{
+        setIsApplied(false);
+      }
+    })
     getDoc(doc(database, `allJobPosts/${id}`))
       .then((snapshot) => {
         setPost(snapshot.data());
         setLoading(false);
+        setOwner(snapshot.data().owner);
       })
     setShowMore(false);
   }, [id]);
@@ -27,7 +49,6 @@ const Job = ({ id }) => {
   const applyForJob = useSelector((state) => {
     return state.applyForJob;
   });
-
   let dispatch = useDispatch();
 
   const applyForJobFunc = () => {
@@ -35,11 +56,51 @@ const Job = ({ id }) => {
       type: "SET_APPLY_A_JOB",
       payload: !applyForJob
     });
+    setSelected([]);
+    dispatchForApply({
+      type: "SET_ALL_NULL"
+    })
   }
 
-  // tags input
-  const [selected, setSelected] = useState([]);
+  let initialState = {
+    name: '',
+    surname: '',
+    age: 0,
+    descYourself: '',
+    skills: []
+  };
+  let [state, dispatchForApply] = useReducer(jobApplyReducer, initialState);
 
+  const submitFunc = () => {
+    state.skills = selected;
+    addDoc(collection(database, `users/${owner.uid}/jobPosts/${id}/jobApplications`), {
+      ...state,
+      sender: {
+        displayName: auth.currentUser.displayName,
+        email: auth.currentUser.email,
+        uid: auth.currentUser.uid,
+        photoURL: auth.currentUser.photoURL
+      },
+      id: id,
+      dateSended: new Date().getTime(),
+      situation: 'wait'
+    })
+      .then((snapshot) => {
+        setDoc(doc(database, `users/${auth.currentUser.uid}/myJobApplications/${snapshot.id}`), {
+          ...state,
+          jobAppliedFor: {
+            ...post,
+            id: id
+          },
+          dateSended: new Date().getTime(),
+          situation: 'wait'
+        })
+      })
+      .then(() => {
+        applyForJobFunc();
+        toast.dark('Successfully apply for this job');
+      })
+  };
 
   if (!post || loading) {
     return (
@@ -64,11 +125,19 @@ const Job = ({ id }) => {
                 <img src={auth.currentUser.photoURL ? auth.currentUser.photoURL : profileImg3} alt="" style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "10px" }} />
                 <small><b>{auth.currentUser.displayName}</b></small>
               </div>
-              <div className='my-3'>
-                <TextField id="standard-basic" label="name" variant="standard" sx={{ width: "100%", my: "5px" }} />
-                <TextField id="standard-basic" label="surname" variant="standard" sx={{ width: "100%", my: "5px" }} />
-                <TextField id="standard-basic" label="age" variant="standard" type='number' sx={{ width: "100%", my: "5px" }} />
-                <TextField id="standard-basic" label="descripe yourself" variant="standard" sx={{ width: "100%", my: "5px", mb: "20px" }} />
+              <div>
+                <TextField id="standard-basic" onChange={(e) => {
+                  setValuesForApply('name', e.target.value, dispatchForApply)
+                }} label="name" variant="standard" sx={{ width: "100%", my: "5px" }} />
+                <TextField id="standard-basic" onChange={(e) => {
+                  setValuesForApply('surname', e.target.value, dispatchForApply)
+                }} label="surname" variant="standard" sx={{ width: "100%", my: "5px" }} />
+                <TextField id="standard-basic" onChange={(e) => {
+                  setValuesForApply('age', e.target.value, dispatchForApply)
+                }} label="age" variant="standard" type='number' sx={{ width: "100%", my: "5px" }} />
+                <TextField id="standard-basic" onChange={(e) => {
+                  setValuesForApply('descYourself', e.target.value, dispatchForApply)
+                }} label="descripe yourself" variant="standard" sx={{ width: "100%", my: "5px", mb: "20px" }} />
                 <p className='my-1'>Skills</p>
                 <TagsInput
                   value={selected}
@@ -76,6 +145,11 @@ const Job = ({ id }) => {
                   name="skills"
                   placeHolder="enter your skills"
                 />
+                <div className="text-end" style={{ marginTop: "10px" }}>
+                  <IconButton onClick={submitFunc} disabled={state.name && state.surname && state.age && state.descYourself ? false : true}>
+                    <DoneIcon />
+                  </IconButton>
+                </div>
               </div>
             </div>
           </div>
@@ -90,7 +164,7 @@ const Job = ({ id }) => {
         {
           auth.currentUser.uid !== post.owner.uid ?
             <div className='d-flex'>
-              <Button sx={{ mr: "10px" }} onClick={applyForJobFunc}>Apply<i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: "5px" }}></i></Button>
+              <Button sx={{ mr: "10px" }} onClick={applyForJobFunc} disabled={isApplied?true:false}>{isApplied?'Applied':'Apply'}<i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: "5px" }}></i></Button>
               <Button>Save</Button>
             </div>
             :

@@ -118,7 +118,7 @@ const JobPosts = () => {
             {
                 startJobPost ?
                     <div style={{ position: "fixed", top: "50%", left: "50%", backdropFilter: "brightness(0.5)", width: "100%", height: "100vh", transform: "translate(-50%, -50%)", zIndex: "100" }}>
-                        <div style={{ position: "absolute", top: "50%", left: "50%", background: `url(${jobBackImg}) no-repeat`, backgroundSize: "cover", transform: "translate(-50%, -50%)", width: "900px", borderRadius: "5px", padding: "20px" }}>
+                        <div className='jobPostBox' style={{ position: "absolute", top: "50%", left: "50%", background: `url(${jobBackImg}) no-repeat`, backgroundSize: "cover", transform: "translate(-50%, -50%)", width: "70%", borderRadius: "5px", padding: "20px" }}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <b>Create a job post</b>
                                 <IconButton onClick={startJobPostFunc}>
