@@ -266,9 +266,14 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                         posts.length === 0 ?
                             <div>
                                 <small className='text-muted'><i>No posts</i></small>
-                                <IconButton onClick={toHomeFunc}>
-                                    <AddCircleOutlineIcon />
-                                </IconButton>
+                                {
+                                    auth.currentUser.uid === user.uid ?
+                                        <IconButton onClick={toHomeFunc}>
+                                            <AddCircleOutlineIcon />
+                                        </IconButton>
+                                        :
+                                        <></>
+                                }
                             </div>
                             :
                             <>

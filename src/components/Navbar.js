@@ -5,7 +5,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '../firebase/firebaseConfig'
 import { useDispatch, useSelector } from 'react-redux'
 import linkedinLogo from '../images/linkedinLogo.png';
-import { Typography, Box, Tooltip, IconButton, Avatar, Menu, MenuItem, Divider, ListItemIcon, Button } from '@mui/material'
+import { Typography, Box, Tooltip, IconButton, Avatar, Menu, MenuItem, Divider, ListItemIcon, Button, FormControl, InputLabel, Select } from '@mui/material'
 import ListIcon from '@mui/icons-material/List';
 import Loading from './Loading'
 
@@ -54,6 +54,22 @@ const Navbar = ({ active }) => {
         setSize(e.target.innerWidth);
     })
 
+    // search type
+    const [type, setType] = useState('jobApplications');
+    const handleChange = (e) => {
+        setType(e.target.value);
+    };
+
+    // search input
+    const searchFunc = () => {
+        if(type === 'jobApplications'){
+            console.log('job')
+        }
+        else if(type === 'users'){
+            console.log('users')
+        }
+    }
+
     if (active === 'signInNavbar') {
         return (
             <div className="navbar navbar-expand-sm navbar-light d-flex justify-content-between px-4">
@@ -86,8 +102,21 @@ const Navbar = ({ active }) => {
                         <img src={linkedinLogo} alt="" style={{ width: "36px", pointerEvents: "none" }} />
                     </Link>
                     <form className="form-inline my-2 my-lg-0" style={{ position: "relative" }}>
-                        <label htmlFor='searchInput1' style={{ position: "absolute", top: "6px", left: "10px" }}><i className="fa-solid fa-magnifying-glass"></i></label>
-                        <input className="form-control mr-sm-2" id='searchInput1' style={{ paddingLeft: "30px" }} type="search" placeholder="Search" />
+                        <FormControl variant="standard" sx={{ m: 1, minWidth: 120, position: "absolute", top: "0px", left: "0px", width: "80px" }} size="small">
+                            <Select
+                                style={{ width: "80px", height: "24px" }}
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={type}
+                                label="Type"
+                                onChange={handleChange}
+                                defaultValue='jobApplications'
+                            >
+                                <MenuItem value={'jobApplications'}>job applications</MenuItem>
+                                <MenuItem value={'users'}>users</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <input className="form-control mr-sm-2" id='searchInput1' style={{ paddingLeft: "100px" }} onChange={searchFunc} type="search" placeholder="Search" />
                     </form>
                 </div>
 

@@ -4,11 +4,14 @@ import database, { auth } from '../firebase/firebaseConfig'
 import Loading from './Loading';
 import JobPost from './JobPost';
 import Moment from 'react-moment';
+import UserInfo from './UserInfo';
 
 const MyNetwork = () => {
     let [myJobApplications, setMyJobApplications] = useState();
+    let [myHiredUsers, setMyHiredUsers] = useState();
     useEffect(() => {
-        getDocs(query(collection(database, `users/${auth.currentUser.uid}/myJobApplications`), orderBy('dateSended', 'desc')))
+        const getMyApplications = () => {
+            getDocs(query(collection(database, `users/${auth.currentUser.uid}/myJobApplications`), orderBy('dateSended', 'desc')))
             .then((snapshot) => {
                 let jobs = [];
                 snapshot.forEach((job) => {
@@ -17,12 +20,28 @@ const MyNetwork = () => {
                         id: job.id
                     });
                 })
-                console.log(jobs);
                 setMyJobApplications(jobs)
             })
+        }
+        const getMyHiredUsers = () => {
+            getDocs(query(collection(database, `users/${auth.currentUser.uid}/hiredUsers`), orderBy('dateHired', 'desc')))
+            .then((snapshot) => {
+                let users = [];
+                snapshot.forEach((job) => {
+                    users.push({
+                        ...job.data(),
+                        id: job.id
+                    });
+                })
+                console.log(myHiredUsers)
+                setMyHiredUsers(users);
+            })
+        }
+        getMyHiredUsers();
+        getMyApplications();
     }, []);
 
-    if (!myJobApplications) {
+    if (!myJobApplications || !myHiredUsers) {
         return (
             <Loading />
         )
@@ -35,14 +54,28 @@ const MyNetwork = () => {
                 {
                     myJobApplications.map((job) => {
                         return (
-                            <div style={{position: "relative"}}>
+                            <div id='networkJobDiv' style={{ position: "relative" }}>
                                 <JobPost post={job.jobAppliedFor} type={'large'} />
-                                <small className='text-muted' style={{fontSize: "12px", position: "absolute", top: "10px", right: "10px"}}>Job application was submitted <Moment fromNow>{job.dateSended}</Moment></small>
-                                <div style={{fontSize: "14px", position: "absolute", bottom: "10px", right: "10px"}}>{job.situation === 'wait'?<small style={{color: "grey"}}>waiting for reply...</small>:job.situation === 'hire'?<small style={{color: "darkseagreen"}}>You were hired! <i className="fa-solid fa-check"></i></small>:<small style={{color: "red"}}>You were not hired! <i className="fa-solid fa-xmark"></i></small>}</div>
+                                <small id='networkDateSendedText' className='text-muted'>Job application was submitted <Moment fromNow>{job.dateSended}</Moment></small>
+                                <div style={{ fontSize: "14px", position: "absolute", bottom: "10px", right: "10px", pointerEvents: "none" }}>{job.situation === 'wait' ? <small style={{ color: "grey" }}>waiting for reply...</small> : job.situation === 'hire' ? <small style={{ color: "darkseagreen" }}>You were hired! <i className="fa-solid fa-check"></i></small> : <small style={{ color: "red" }}>You were not hired! <i className="fa-solid fa-xmark"></i></small>}</div>
                             </div>
                         )
                     })
                 }
+            </div>
+
+            {/* my hired users */}
+            <div>
+                <p style={{ color: "#0072b1", font: "caption", marginTop: "30px", marginBottom: "10px" }}>My Hired Users</p>
+                <div style={{display: "flex", flexWrap: "wrap"}}>
+                    {
+                        myHiredUsers.map((user) => {
+                            return (
+                                <UserInfo jobApplication={user} type={'hired'} />
+                            )
+                        })
+                    }
+                </div>
             </div>
         </div>
     )

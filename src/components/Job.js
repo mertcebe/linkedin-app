@@ -1,9 +1,9 @@
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc } from 'firebase/firestore';
 import React, { useEffect, useReducer, useState } from 'react'
 import Loading from './Loading';
 import database, { auth } from '../firebase/firebaseConfig'
 import Moment from 'react-moment';
-import { Button, Divider, IconButton, TextField, Typography } from '@mui/material';
+import { Button, Divider, IconButton, Menu, MenuItem, TextField, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -11,37 +11,56 @@ import profileImg3 from '../images/profileImg3.jpg';
 import { TagsInput } from "react-tag-input-component";
 import { jobApplyReducer, setValuesForApply } from './jobReducer/jobApplyReducer';
 import DoneIcon from '@mui/icons-material/Done';
+import { NavLink, Navigate, useNavigate } from 'react-router-dom';
+import CloseIcon from '@mui/icons-material/Close';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Job = ({ id }) => {
   let [post, setPost] = useState();
   let [showMore, setShowMore] = useState(false);
   let [loading, setLoading] = useState(false);
   let [owner, setOwner] = useState();
-  // let [appliedJobIds, setAppliedJobIds] = useState();
   let [isApplied, setIsApplied] = useState(false);
+  let [hiredUsersForThisJob, setHiredUsersForThisJob] = useState();
   // tags input
   const [selected, setSelected] = useState([]);
+
+  const getHiredUsersForThatJob = (owner) => {
+    getDocs(query(collection(database, `users/${owner.uid}/jobPosts/${id}/hiredUsersForThisJob`)))
+      .then((snapshot) => {
+        let users = [];
+        snapshot.forEach((user) => {
+          users.push({
+            ...user.data(),
+            id: user.id
+          });
+        })
+        setHiredUsersForThisJob(users);
+      })
+  }
 
   useEffect(() => {
     setLoading(true);
     getDocs(query(collection(database, `users/${auth.currentUser.uid}/myJobApplications`)))
-    .then((snapshot) => {
-      let appliedJobIds = [];
-      snapshot.forEach((job) => {
-        appliedJobIds.push(job.data().jobAppliedFor.id);
+      .then((snapshot) => {
+        let appliedJobIds = [];
+        snapshot.forEach((job) => {
+          appliedJobIds.push(job.data().jobAppliedFor.id);
+        })
+        if (appliedJobIds.includes(id)) {
+          setIsApplied(true);
+        }
+        else {
+          setIsApplied(false);
+        }
       })
-      if(appliedJobIds.includes(id)){
-        setIsApplied(true);
-      }
-      else{
-        setIsApplied(false);
-      }
-    })
     getDoc(doc(database, `allJobPosts/${id}`))
       .then((snapshot) => {
         setPost(snapshot.data());
         setLoading(false);
         setOwner(snapshot.data().owner);
+        getHiredUsersForThatJob(snapshot.data().owner);
       })
     setShowMore(false);
   }, [id]);
@@ -102,13 +121,72 @@ const Job = ({ id }) => {
       })
   };
 
-  if (!post || loading) {
+  // options button
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const deleteJobPost = () => {
+    setAnchorEl(null);
+    deleteDoc(doc(database, `allJobPosts/${id}`));
+    deleteDoc(doc(database, `users/${auth.currentUser.uid}/jobPosts/${id}`))
+      .then(() => {
+        toast.info('Successfull job posting removed!');
+      })
+  }
+
+  let navigate = useNavigate();
+  if (!post || loading || !hiredUsersForThisJob) {
     return (
       <Loading />
     )
   }
   return (
-    <div style={{ padding: "20px 10px", overflow: "auto", height: "650px" }}>
+    <div style={{ padding: "20px 10px", overflow: "auto", height: "650px", position: "relative" }}>
+      {
+        auth.currentUser.uid === owner.uid ?
+          <div style={{ position: "absolute", top: "10px", right: "50px" }}>
+            <IconButton
+              id="demo-positioned-button"
+              aria-controls={open ? 'demo-positioned-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              onClick={handleClick}
+            >
+              <MoreHorizIcon />
+            </IconButton>
+            <Menu
+              id="demo-positioned-menu"
+              aria-labelledby="demo-positioned-button"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+            >
+              <MenuItem onClick={deleteJobPost} className="nav-item">
+                <DeleteIcon /> Delete this job post
+              </MenuItem>
+            </Menu>
+          </div>
+          :
+          <></>
+      }
+      <IconButton style={{ position: "absolute", top: "10px", right: "10px" }} onClick={() => {
+        navigate('/jobs');
+      }}>
+        <CloseIcon />
+      </IconButton>
       {/* applyForJob */}
       {
         applyForJob ?
@@ -164,7 +242,7 @@ const Job = ({ id }) => {
         {
           auth.currentUser.uid !== post.owner.uid ?
             <div className='d-flex'>
-              <Button sx={{ mr: "10px" }} onClick={applyForJobFunc} disabled={isApplied?true:false}>{isApplied?'Applied':'Apply'}<i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: "5px" }}></i></Button>
+              <Button sx={{ mr: "10px" }} onClick={applyForJobFunc} disabled={isApplied ? true : false}>{isApplied ? 'Applied' : 'Apply'}<i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: "5px" }}></i></Button>
               <Button>Save</Button>
             </div>
             :
@@ -187,6 +265,8 @@ const Job = ({ id }) => {
               <></>
           }
         </div>
+
+        {/* features */}
         <div style={{ display: "flex", flexWrap: "wrap" }}>
           <div style={{ width: "40%", boxSizing: "border-box", padding: "10px" }}>
             <small className='d-block text-muted'>Experience level</small>
@@ -205,6 +285,25 @@ const Job = ({ id }) => {
             <small style={{ fontSize: "16px" }}><b>Hiring will end <Moment fromNow>{post.lastDate}</Moment></b></small>
           </div>
         </div>
+        <Divider />
+        {/* hired users for this job */}
+        {
+          hiredUsersForThisJob.length !== 0 ?
+            <div className='my-3'>
+              <small style={{ display: "block", margin: "10px 0", fontSize: "12px" }}><b>Hired users for this job</b></small>
+              {
+                hiredUsersForThisJob.map((user) => {
+                  return (
+                    <NavLink to={user.uid === auth.currentUser.uid ? `/profile` : `/profile/${user.uid}`} style={{ margin: "2px" }} title={user.displayName}>
+                      <img src={user.photoURL} alt="" style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
+                    </NavLink>
+                  )
+                })
+              }
+            </div>
+            :
+            <></>
+        }
       </div>
     </div>
   )

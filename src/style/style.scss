@@ -99,6 +99,20 @@ body {
     width: 50%;
 }
 
+#networkDateSendedText{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+
+.MuiFormControl-root{
+    min-width: 70px !important;
+}
+
+
 @media(max-width: 1100px) {
     .signInPage {
         flex-direction: column;
@@ -188,5 +202,20 @@ body {
         width: 100% !important;
         position: relative;
     }
-    
+
+    #networkDateSendedText{
+        display: none;
+    }
+
+    #networkJobDiv:hover{
+        background-color: #8cbed0 !important;
+    }
+
+    #networkJobDiv:hover > #networkDateSendedText{
+        display: inline-block;
+        color: #fff !important;
+        background-color: #8cbed0 !important;
+        font-size: 14px;
+        padding: 5px 10px;
+    }
 }

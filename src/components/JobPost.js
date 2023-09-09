@@ -1,16 +1,14 @@
-import React from 'react'
+import { doc, getDoc } from 'firebase/firestore';
+import React, { useEffect } from 'react'
 import Moment from 'react-moment'
 import { NavLink } from 'react-router-dom'
-
-let smallPost = {
-
-}
-
-let largePost = {
-
-}
+import database, { auth } from '../firebase/firebaseConfig';
 
 const JobPost = ({ post, user, type }) => {
+    useEffect(() => {
+        // getDoc(doc(database, `users/${auth.currentUser.uid}/hiredUsers`))
+    }, []);
+
     if (type === 'small') {
         return (
             <NavLink to={`/jobs/${post.id}`} className='d-flex my-2 shadow-sm p-2' style={{alignItems: "flex-start", textDecoration: "none", color: "#000", position: "relative"}}>
