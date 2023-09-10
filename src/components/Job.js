@@ -224,7 +224,7 @@ const Job = ({ id }) => {
                   placeHolder="enter your skills"
                 />
                 <div className="text-end" style={{ marginTop: "10px" }}>
-                  <IconButton onClick={submitFunc} disabled={state.name && state.surname && state.age && state.descYourself ? false : true}>
+                  <IconButton onClick={submitFunc} disabled={state.name && state.surname && state.age && state.descYourself && selected.length !== 0 ? false : true}>
                     <DoneIcon />
                   </IconButton>
                 </div>

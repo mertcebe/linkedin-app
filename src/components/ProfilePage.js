@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import database, { auth } from '../firebase/firebaseConfig';
-import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc } from 'firebase/firestore';
 import Post from './Post'
 import Loading from './Loading';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -15,6 +15,9 @@ import RateReviewIcon from '@mui/icons-material/RateReview';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import JobPost from './JobPost';
 import WorkIcon from '@mui/icons-material/Work';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { toast } from 'react-toastify';
+import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 
 const ProfilePage = ({ user = auth.currentUser }) => {
     let [posts, setPosts] = useState();
@@ -24,6 +27,7 @@ const ProfilePage = ({ user = auth.currentUser }) => {
     let [savedPosts, setSavedPosts] = useState();
     let [savedPostsNum, setSavedPostsNum] = useState(2);
     let [jobPosts, setJobPosts] = useState();
+    let [isFriendSend, setIsFriendSend] = useState(false);
     let navigate = useNavigate();
     useEffect(() => {
         const getPosts = async () => {
@@ -110,11 +114,23 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                     setJobPosts(posts);
                 })
         }
+        const getFriendControl = () => {
+            getDoc(doc(database, `users/${auth.currentUser.uid}/friendRequests/${user.uid}`))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        setIsFriendSend(true);
+                    }
+                    else {
+                        setIsFriendSend(false);
+                    }
+                })
+        }
         getJobPosts();
         getSavedPosts();
         getCommentedPosts()
         getMyLikes();
         getPosts();
+        getFriendControl();
     }, [user]);
 
 
@@ -133,6 +149,19 @@ const ProfilePage = ({ user = auth.currentUser }) => {
         }, 2000);
     }
 
+    // friend request
+    const sendFriendRequestFunc = () => {
+        setDoc(doc(database, `users/${user.uid}/friendRequests/${auth.currentUser.uid}`), {
+            name: auth.currentUser.displayName,
+            photoURL: auth.currentUser.photoURL,
+            email: auth.currentUser.email,
+            uid: auth.currentUser.uid
+        })
+            .then(() => {
+                toast.dark('Successfully sended friend request!');
+            })
+    }
+
     if (!posts || !myLikes || !commentedPosts) {
         return (
             <Loading />
@@ -145,9 +174,32 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                     <div className='myProfileImg' style={{ position: "relative", width: "300px" }}>
                         <img src={user.photoURL} alt="" className='profileImgEl' style={{ width: "100%", height: "300px" }} />
                     </div>
-                    <div>
-                        <b>{user.displayName}</b>
-                        <p className='my-1 p-0' style={{ fontSize: "14px" }}>@{user.email}</p>
+                    <div className='d-flex justify-content-between align-items-center'>
+                        <div>
+                            <b>{user.displayName}</b>
+                            <p className='my-1 p-0' style={{ fontSize: "14px" }}>@{user.email}</p>
+                        </div>
+                        {
+                            auth.currentUser.uid !== user.uid ?
+                                <>
+                                    {
+                                        isFriendSend ?
+                                            <>
+                                                <IconButton onClick={() => {
+                                                    navigate('/notifications');
+                                                }}>
+                                                    <CircleNotificationsIcon />
+                                                </IconButton>
+                                            </>
+                                            :
+                                            <IconButton onClick={sendFriendRequestFunc}>
+                                                <PersonAddIcon />
+                                            </IconButton>
+                                    }
+                                </>
+                                :
+                                <></>
+                        }
                     </div>
                 </div>
 

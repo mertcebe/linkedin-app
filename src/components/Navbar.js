@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import logo from '../images/Linkedin-logo-png.png'
 import { signOut } from 'firebase/auth'
-import { auth } from '../firebase/firebaseConfig'
+import database, { auth } from '../firebase/firebaseConfig'
 import { useDispatch, useSelector } from 'react-redux'
 import linkedinLogo from '../images/linkedinLogo.png';
 import { Typography, Box, Tooltip, IconButton, Avatar, Menu, MenuItem, Divider, ListItemIcon, Button, FormControl, InputLabel, Select } from '@mui/material'
 import ListIcon from '@mui/icons-material/List';
 import Loading from './Loading'
+import { collection, endAt, getDocs, orderBy, query, startAt, where } from 'firebase/firestore'
+
 
 const Navbar = ({ active }) => {
     let navigate = useNavigate();
@@ -61,14 +63,55 @@ const Navbar = ({ active }) => {
     };
 
     // search input
-    const searchFunc = () => {
-        if(type === 'jobApplications'){
-            console.log('job')
+    let [searchJobs, setSearchJobs] = useState();
+    let [searchUsers, setSearchUsers] = useState();
+    let [searchText, setSearchText] = useState();
+    let [searchControl, setSearchControl] = useState(false);
+    const searchFunc = (text) => {
+        if (text) {
+            if (type === 'jobApplications') {
+                getDocs(query(collection(database, `allJobPosts`)))
+                    .then((snapshot) => {
+                        let jobs = [];
+                        snapshot.forEach((job) => {
+                            if (((job.data().job).toLowerCase()).includes(text)) {
+                                jobs.push({
+                                    ...job.data(),
+                                    id: job.id
+                                });
+                            }
+                        })
+                        setSearchControl(true)
+                        setSearchJobs(jobs);
+                    })
+            }
+            else if (type === 'users') {
+                getDocs(query(collection(database, `users`)))
+                    .then((snapshot) => {
+                        let users = [];
+                        snapshot.forEach((user) => {
+                            if (((user.data().name).toLowerCase()).includes(text)) {
+                                users.push({
+                                    ...user.data(),
+                                    id: user.id
+                                });
+                            }
+                        })
+                        setSearchControl(true)
+                        setSearchUsers(users);
+                    })
+            }
         }
-        else if(type === 'users'){
-            console.log('users')
+        else {
+            setSearchControl(false)
         }
     }
+
+    document.addEventListener('click', (e) => {
+        if (e.target.id !== 'searchJob' || e.target.id !== 'dropdownSearhMenu') {
+            setSearchControl(false);
+        }
+    })
 
     if (active === 'signInNavbar') {
         return (
@@ -116,7 +159,86 @@ const Navbar = ({ active }) => {
                                 <MenuItem value={'users'}>users</MenuItem>
                             </Select>
                         </FormControl>
-                        <input className="form-control mr-sm-2" id='searchInput1' style={{ paddingLeft: "100px" }} onChange={searchFunc} type="search" placeholder="Search" />
+                        <input className="form-control mr-sm-2" value={searchText} autoComplete='off' id='searchInput1' style={{ paddingLeft: "100px" }} onChange={(e) => {
+                            searchFunc(e.target.value);
+                            setSearchText(e.target.value);
+                        }} type="search" placeholder="Search" />
+                        {/* dropdown search menu */}
+                        {
+                            searchControl && searchText ?
+                                <div id='dropdownSearhMenu' style={{ zIndex: 300 }}>
+                                    {
+                                        type === 'jobApplications' ?
+                                            <>
+                                                {
+                                                    searchJobs.length !== 0 ?
+                                                        <>
+                                                            {
+                                                                searchJobs.slice(0, 10).map((job) => {
+                                                                    return (
+                                                                        <NavLink to={`/jobs/${job.id}`} id='searchJob' onClick={() => {
+                                                                            setSearchControl(false);
+                                                                            setSearchText('');
+                                                                        }}
+                                                                            style={{
+                                                                                display: "block",
+                                                                                borderRadius: "5px",
+                                                                                color: "#000",
+                                                                                fontSize: "14px",
+                                                                                background: "#fff",
+                                                                                textDecoration: "none",
+                                                                                margin: "5px",
+                                                                                marginBottom: "5px",
+                                                                                padding: "5px 10px"
+                                                                            }}>
+                                                                            {job.job}
+                                                                        </NavLink>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </>
+                                                        :
+                                                        <small style={{ display: "block", color: "grey", padding: "10px" }}>No match found!</small>
+                                                }
+                                            </>
+                                            :
+                                            <>
+                                                {
+                                                    searchUsers.length !== 0 ?
+                                                        <>
+                                                            {
+                                                                searchUsers.slice(0, 10).map((user) => {
+                                                                    return (
+                                                                        <NavLink to={`/profile/${user.uid}`} id='searchJob' onClick={() => {
+                                                                            setSearchControl(false);
+                                                                            setSearchText('');
+                                                                        }}
+                                                                            style={{
+                                                                                display: "block",
+                                                                                borderRadius: "5px",
+                                                                                color: "#000",
+                                                                                fontSize: "14px",
+                                                                                background: "#fff",
+                                                                                textDecoration: "none",
+                                                                                margin: "5px",
+                                                                                marginBottom: "5px",
+                                                                                padding: "5px 10px"
+                                                                            }}>
+                                                                            {user.name}
+                                                                        </NavLink>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </>
+                                                        :
+                                                        <small style={{ display: "block", color: "grey", padding: "10px" }}>No match found!</small>
+                                                }
+                                            </>
+                                    }
+                                </div>
+                                :
+                                <></>
+                        }
                     </form>
                 </div>
 
