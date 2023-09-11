@@ -28,7 +28,9 @@ const ProfilePage = ({ user = auth.currentUser }) => {
     let [savedPostsNum, setSavedPostsNum] = useState(2);
     let [jobPosts, setJobPosts] = useState();
     let [isFriendSend, setIsFriendSend] = useState(false);
+    let [isMyFriend, setIsMyFriend] = useState(false);
     let navigate = useNavigate();
+    
     useEffect(() => {
         const getPosts = async () => {
             getDocs(query(collection(database, `users/${user.uid}/posts`), orderBy('dateAdded', 'desc')))
@@ -125,12 +127,24 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                     }
                 })
         }
+        const getIsMyFriendControl = () => {
+            getDoc(doc(database, `users/${auth.currentUser.uid}/myFriends/${user.uid}`))
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        setIsMyFriend(true);
+                    }
+                    else {
+                        setIsMyFriend(false);
+                    }
+                })
+        }
         getJobPosts();
         getSavedPosts();
         getCommentedPosts()
         getMyLikes();
         getPosts();
         getFriendControl();
+        getIsMyFriendControl();
     }, [user]);
 
 
@@ -183,18 +197,28 @@ const ProfilePage = ({ user = auth.currentUser }) => {
                             auth.currentUser.uid !== user.uid ?
                                 <>
                                     {
-                                        isFriendSend ?
+                                        isMyFriend ?
                                             <>
-                                                <IconButton onClick={() => {
-                                                    navigate('/notifications');
-                                                }}>
-                                                    <CircleNotificationsIcon />
-                                                </IconButton>
+                                                message part
                                             </>
                                             :
-                                            <IconButton onClick={sendFriendRequestFunc}>
-                                                <PersonAddIcon />
-                                            </IconButton>
+                                            <>
+                                                {
+                                                    isFriendSend ?
+                                                        <div style={{ textAlign: "end" }}>
+                                                            <IconButton onClick={() => {
+                                                                navigate('/notifications');
+                                                            }}>
+                                                                <CircleNotificationsIcon sx={{ color: "darkgreen" }} />
+                                                            </IconButton>
+                                                            <small style={{ display: "block", color: "darkgreen" }}>friend request!</small>
+                                                        </div>
+                                                        :
+                                                        <IconButton onClick={sendFriendRequestFunc}>
+                                                            <PersonAddIcon />
+                                                        </IconButton>
+                                                }
+                                            </>
                                     }
                                 </>
                                 :

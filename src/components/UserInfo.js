@@ -5,6 +5,7 @@ import database, { auth } from '../firebase/firebaseConfig'
 import { deleteDoc, doc, setDoc, updateDoc } from 'firebase/firestore'
 import { toast } from 'react-toastify'
 import Moment from 'react-moment'
+import { sendMessage } from './messages/SendMessageActions'
 
 const UserInfo = ({ jobApplication, type }) => {
     const hirePersonFunc = (jobApplication) => {
@@ -24,6 +25,7 @@ const UserInfo = ({ jobApplication, type }) => {
                     ...jobApplication.jobApplication.sender
                 })
                 toast.dark('Successfully hired!');
+                sendMessage(auth.currentUser, jobApplication.jobApplication.sender, `Congratulations, your job application for ${jobApplication.jobPost.job}-${jobApplication.jobPost.company}, has been accepted!`, 'job');
             })
     }
 
@@ -36,6 +38,7 @@ const UserInfo = ({ jobApplication, type }) => {
             })
             .then(() => {
                 toast.dark('Successfully did not hire!');
+                sendMessage(auth.currentUser, jobApplication.jobApplication.sender, `Unfortunately, your job application for ${jobApplication.jobPost.job}-${jobApplication.jobPost.company}, was not accepted!`, 'job');
             })
     }
 

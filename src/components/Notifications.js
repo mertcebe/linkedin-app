@@ -10,6 +10,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import { sendMessage } from './messages/SendMessageActions';
 
 const Notifications = () => {
   let [jobApplications, setJobApplications] = useState();
@@ -56,6 +57,37 @@ const Notifications = () => {
         })
         setFriendRequests(users);
       })
+  }
+
+  const acceptRequestFunc = (user) => {
+    let {displayName, email, uid, photoURL} = auth.currentUser;
+    let myAccount = {
+      name: displayName,
+      email: email,
+      uid: uid,
+      photoURL: photoURL
+    };
+    deleteDoc(doc(database, `users/${auth.currentUser.uid}/friendRequests/${user.uid}`))
+    setDoc(doc(database, `users/${auth.currentUser.uid}/myFriends/${user.uid}`), {
+      ...user
+    })
+      .then(() => {
+        setDoc(doc(database, `users/${user.uid}/myFriends/${auth.currentUser.uid}`), {
+          ...myAccount
+        });
+      })
+      .then(() => {
+        toast.success('Successfully accept the friend request!');
+        sendMessage(auth.currentUser, user, `${auth.currentUser.displayName}, accepted your friend request!`, 'friendRequest');
+      })
+  }
+
+  const dontAcceptRequestFunc = (user) => {
+    deleteDoc(doc(database, `users/${auth.currentUser.uid}/friendRequests/${user.uid}`))
+    .then(() => {
+      toast.dark('Successfully do not accept the friend request!');
+      sendMessage(auth.currentUser, user, `${auth.currentUser.displayName}, did not accept your friend request!`, 'friendRequest');
+    })
   }
 
   useEffect(() => {
@@ -105,7 +137,7 @@ const Notifications = () => {
                 friendRequests.map((user) => {
                   return (
                     <div className='shadow-sm' style={{ background: "#fff", padding: "5px 10px", borderRadius: "5px" }}>
-                      <div className='d-flex justify-content-between align-items-center' style={{ width: "300px" }}>
+                      <div className='d-flex justify-content-between align-items-center' style={{ width: "400px" }}>
                         <div style={{ pointerEvents: "none" }}>
                           <small style={{ marginRight: "10px" }}><b>{user.name}</b></small>
                           <small>{user.email}</small>
@@ -116,10 +148,14 @@ const Notifications = () => {
                           }}>
                             <PersonSearchIcon />
                           </IconButton>
-                          <IconButton>
+                          <IconButton onClick={() => {
+                            acceptRequestFunc(user);
+                          }}>
                             <CheckIcon />
                           </IconButton>
-                          <IconButton>
+                          <IconButton onClick={() => {
+                            dontAcceptRequestFunc(user);
+                          }}>
                             <CloseIcon />
                           </IconButton>
                         </div>

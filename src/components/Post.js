@@ -187,6 +187,25 @@ const Post = ({ post }) => {
   }
 
   const deletePost = () => {
+    getDocs(query(collection(database, `users`)))
+      .then((snapshot) => {
+        snapshot.forEach((user) => {
+          getDoc(doc(database, `users/${user.data().uid}/savedPost/${id}`))
+            .then((snapshot2) => {
+              if (snapshot2.exists()) {
+                deleteDoc(doc(database, `users/${user.data().uid}/savedPost/${id}`))
+              }
+            })
+            .then(() => {
+              getDoc(doc(database, `users/${user.data().uid}/myLikes/${id}`))
+                .then((snapshot3) => {
+                  if (snapshot3.exists()) {
+                    deleteDoc(doc(database, `users/${user.data().uid}/myLikes/${id}`))
+                  }
+                })
+            })
+        });
+      })
     deleteDoc(doc(database, `users/${auth.currentUser.uid}/posts/${id}`))
       .then(() => {
         deleteDoc(doc(database, `allPosts/${id}`))
@@ -306,10 +325,10 @@ const Post = ({ post }) => {
       {
         openComment ?
           <div style={{ width: "100%", display: "flex" }}>
-            <textarea value={commentText} style={{ width: "94%", height: "70px", resize: "none" }} placeholder='Enter comments...' onChange={(e) => {
+            <textarea value={commentText} style={{ width: "92%", height: "70px", resize: "none" }} placeholder='Enter comments...' onChange={(e) => {
               setCommentText(e.target.value);
             }}></textarea>
-            <IconButton style={{ width: "6%", alignSelf: "flex-end" }} disabled={commentText ? false : true} onClick={sendCommentFunc}>
+            <IconButton style={{ width: "40px", alignSelf: "flex-end" }} disabled={commentText ? false : true} onClick={sendCommentFunc}>
               <SendIcon />
             </IconButton>
           </div>
