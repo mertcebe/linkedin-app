@@ -16,6 +16,8 @@ import Jobs from '../components/Jobs'
 import Notifications from '../components/Notifications'
 import MyNetwork from '../components/MyNetwork'
 import Messages from '../components/messages/Messages'
+import TicTacToe from '../components/TicTacToe'
+import SearchPage from '../components/SearchPage'
 
 const AppRouter = () => {
     let { isAuthorized, loading } = useAuthorized();
@@ -39,6 +41,7 @@ const AppRouter = () => {
                         <Route path='/network' element={<MyNetwork />} />
                         <Route path='/messaging' element={<Messages />} />
                         <Route path='/notifications' element={<Notifications />} />
+                        <Route path='/*' element={<SearchPage />} />
                     </Route>
                     <Route element={<PublicRoute isAuthorized={isAuthorized} />}>
                         <Route path='/' element={<SignInPage />} />
@@ -46,7 +49,7 @@ const AppRouter = () => {
                 </Routes>
                 <ToastContainer
                     position="bottom-center"
-                    autoClose={3000}
+                    autoClose={2000}
                     hideProgressBar={false}
                     newestOnTop={false}
                     closeOnClick
